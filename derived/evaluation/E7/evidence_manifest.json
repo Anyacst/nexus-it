@@ -1,0 +1,29 @@
+[
+  {
+    "filename": "gateway.jsonl",
+    "relative_path": "gateway.jsonl",
+    "source": ".",
+    "collection_time": "2026-11-13T03:48:27.054001+00:00",
+    "sha256": "771e55e5e7d1dac3902b5f0d3618960d2545115c68ccc55ab50d7e453ef70178",
+    "bytes": 886,
+    "snapshot_stable": true
+  },
+  {
+    "filename": "sensor-A.jsonl",
+    "relative_path": "sensor-A.jsonl",
+    "source": ".",
+    "collection_time": "2026-11-13T03:48:27.054001+00:00",
+    "sha256": "6479259009548260f3786a2ad74db8d33e8141d0ad4a68c037407f1559d83c4c",
+    "bytes": 342,
+    "snapshot_stable": true
+  },
+  {
+    "filename": "sensor-B.jsonl",
+    "relative_path": "sensor-B.jsonl",
+    "source": ".",
+    "collection_time": "2026-11-13T03:48:27.054001+00:00",
+    "sha256": "bcdb417caba1da4901008e2e186cb2c1585d09c8af4c0843ce57ed5567228445",
+    "bytes": 546,
+    "snapshot_stable": true
+  }
+]

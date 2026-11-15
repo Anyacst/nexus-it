@@ -1,0 +1,56 @@
+{
+  "condition": "Missing log entries",
+  "events": [
+    {
+      "event_id": "ev-001",
+      "timestamp": 1794000000.0,
+      "device": "sensor-A",
+      "event": "boot",
+      "device_sequence": 1
+    },
+    {
+      "event_id": "ev-002",
+      "timestamp": 1794000002.0,
+      "device": "sensor-A",
+      "event": "auth_fail",
+      "device_sequence": 2
+    },
+    {
+      "event_id": "ev-003",
+      "timestamp": 1794000003.0,
+      "device": "sensor-B",
+      "event": "alert",
+      "device_sequence": 1
+    },
+    {
+      "event_id": "ev-004",
+      "timestamp": 1794000004.0,
+      "device": "sensor-A",
+      "event": "command",
+      "device_sequence": 3
+    },
+    {
+      "event_id": "ev-005",
+      "timestamp": 1794000006.0,
+      "device": "sensor-B",
+      "event": "telemetry",
+      "device_sequence": 2
+    },
+    {
+      "event_id": "ev-006",
+      "timestamp": 1794000008.0,
+      "device": "sensor-A",
+      "event": "link_down",
+      "device_sequence": 4
+    },
+    {
+      "event_id": "ev-007",
+      "timestamp": 1794000010.0,
+      "device": "sensor-B",
+      "event": "recovery",
+      "device_sequence": 3
+    }
+  ],
+  "tampering_seeded": false,
+  "expected_record_count": 14
+}

@@ -1,0 +1,6 @@
+{"device": "sensor-A", "event": "boot", "event_id": "ev-001", "sequence": 1, "timestamp": 1794000005.0}
+{"device": "sensor-A", "event": "maintenance", "event_id": "ev-002", "sequence": 2, "timestamp": 1794000007.0}
+{"device": "sensor-A", "event": "command", "event_id": "ev-004", "sequence": 3, "timestamp": 1794000009.0}
+{"device": "sensor-A", "event": "link_down", "event_id": "ev-006", "sequence": 4, "timestamp": 1794000013.0}
+{"device": "sensor-A", "event": "recovery", "event_id": "ev-008", "sequence": 5, "timestamp": 1794000017.0}
+{"device": "sensor-A", "event": "command", "event_id": "ev-010", "sequence": 6, "timestamp": 1794000021.0}

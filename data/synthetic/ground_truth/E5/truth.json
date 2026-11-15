@@ -1,0 +1,177 @@
+{
+  "condition": "Gateway packet loss",
+  "events": [
+    {
+      "event_id": "ev-001",
+      "timestamp": 1794000000.0,
+      "device": "sensor-A",
+      "event": "boot",
+      "expected_sources": [
+        "sensor-A.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-A.jsonl": 1,
+        "gateway.jsonl": 1
+      }
+    },
+    {
+      "event_id": "ev-002",
+      "timestamp": 1794000002.0,
+      "device": "sensor-A",
+      "event": "auth_fail",
+      "expected_sources": [
+        "sensor-A.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-A.jsonl": 2,
+        "gateway.jsonl": 2
+      }
+    },
+    {
+      "event_id": "ev-003",
+      "timestamp": 1794000003.0,
+      "device": "sensor-B",
+      "event": "alert",
+      "expected_sources": [
+        "sensor-B.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-B.jsonl": 1,
+        "gateway.jsonl": 3
+      }
+    },
+    {
+      "event_id": "ev-004",
+      "timestamp": 1794000004.0,
+      "device": "sensor-A",
+      "event": "command",
+      "expected_sources": [
+        "sensor-A.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-A.jsonl": 3,
+        "gateway.jsonl": 4
+      }
+    },
+    {
+      "event_id": "ev-005",
+      "timestamp": 1794000006.0,
+      "device": "sensor-B",
+      "event": "heartbeat",
+      "expected_sources": [
+        "sensor-B.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-B.jsonl": 2,
+        "gateway.jsonl": 5
+      }
+    },
+    {
+      "event_id": "ev-006",
+      "timestamp": 1794000008.0,
+      "device": "sensor-A",
+      "event": "link_down",
+      "expected_sources": [
+        "sensor-A.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-A.jsonl": 4,
+        "gateway.jsonl": 6
+      }
+    },
+    {
+      "event_id": "ev-007",
+      "timestamp": 1794000010.0,
+      "device": "sensor-B",
+      "event": "heartbeat",
+      "expected_sources": [
+        "sensor-B.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-B.jsonl": 3,
+        "gateway.jsonl": 7
+      }
+    },
+    {
+      "event_id": "ev-008",
+      "timestamp": 1794000012.0,
+      "device": "sensor-A",
+      "event": "recovery",
+      "expected_sources": [
+        "sensor-A.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-A.jsonl": 5,
+        "gateway.jsonl": 8
+      }
+    },
+    {
+      "event_id": "ev-009",
+      "timestamp": 1794000014.0,
+      "device": "sensor-B",
+      "event": "heartbeat",
+      "expected_sources": [
+        "sensor-B.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-B.jsonl": 4,
+        "gateway.jsonl": 9
+      }
+    },
+    {
+      "event_id": "ev-010",
+      "timestamp": 1794000016.0,
+      "device": "sensor-A",
+      "event": "command",
+      "expected_sources": [
+        "sensor-A.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-A.jsonl": 6,
+        "gateway.jsonl": 10
+      }
+    },
+    {
+      "event_id": "ev-011",
+      "timestamp": 1794000018.0,
+      "device": "sensor-B",
+      "event": "heartbeat",
+      "expected_sources": [
+        "sensor-B.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-B.jsonl": 5,
+        "gateway.jsonl": 11
+      }
+    },
+    {
+      "event_id": "ev-012",
+      "timestamp": 1794000022.0,
+      "device": "sensor-B",
+      "event": "heartbeat",
+      "expected_sources": [
+        "sensor-B.jsonl",
+        "gateway.jsonl"
+      ],
+      "source_sequences": {
+        "sensor-B.jsonl": 6,
+        "gateway.jsonl": 12
+      }
+    }
+  ],
+  "tampering_seeded": false,
+  "clock_manipulated": false,
+  "tamper_mechanisms": [],
+  "expected_record_count": 24
+}

@@ -1,0 +1,3 @@
+{"device": "sensor-A", "event": "boot", "event_id": "ev-001", "sequence": 1, "timestamp": 1794000005.0}
+{"device": "sensor-A", "event": "maintenance", "event_id": "ev-002", "sequence": 2, "timestamp": 1794000007.0}
+{"device": "sensor-A", "event": "injected_admin_login", "event_id": "inject-001", "sequence": 3, "timestamp": 1794000005.5}

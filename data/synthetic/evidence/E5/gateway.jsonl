@@ -1,0 +1,10 @@
+{"event": "boot", "event_id": "ev-001", "peer": "sensor-A", "sequence": 1, "timestamp": 1794000000.0}
+{"event": "auth_fail", "event_id": "ev-002", "peer": "sensor-A", "sequence": 2, "timestamp": 1794000002.0}
+{"event": "heartbeat", "event_id": "ev-005", "peer": "sensor-B", "sequence": 5, "timestamp": 1794000006.0}
+{"event": "link_down", "event_id": "ev-006", "peer": "sensor-A", "sequence": 6, "timestamp": 1794000008.0}
+{"event": "heartbeat", "event_id": "ev-007", "peer": "sensor-B", "sequence": 7, "timestamp": 1794000010.0}
+{"event": "recovery", "event_id": "ev-008", "peer": "sensor-A", "sequence": 8, "timestamp": 1794000012.0}
+{"event": "heartbeat", "event_id": "ev-009", "peer": "sensor-B", "sequence": 9, "timestamp": 1794000014.0}
+{"event": "command", "event_id": "ev-010", "peer": "sensor-A", "sequence": 10, "timestamp": 1794000016.0}
+{"event": "heartbeat", "event_id": "ev-011", "peer": "sensor-B", "sequence": 11, "timestamp": 1794000018.0}
+{"event": "heartbeat", "event_id": "ev-012", "peer": "sensor-B", "sequence": 12, "timestamp": 1794000022.0}

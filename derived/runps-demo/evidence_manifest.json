@@ -1,0 +1,10 @@
+[
+  {
+    "filename": "gateway-demo.pcap",
+    "relative_path": "gateway-demo.pcap",
+    "source": ".",
+    "collection_time": "2026-11-10T22:33:56.540507+00:00",
+    "sha256": "cc0c7560fad99048b5d21dcecb86b8ada4eb586210c0620085bbd7d597fd4da5",
+    "bytes": 140
+  }
+]

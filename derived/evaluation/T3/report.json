@@ -1,0 +1,368 @@
+{
+  "schema_version": "1.0.0",
+  "created_at": "2026-11-13T03:48:27.126053+00:00",
+  "evidence_directory": "E:\\UPES NOTES\\Sem 7\\Digital Forensics\\Project\\Nexus IOT\\data\\synthetic\\evidence\\T3",
+  "evidence_record_count": 22,
+  "processing_seconds": 0.017802,
+  "evidence_manifest": [
+    {
+      "filename": "gateway.jsonl",
+      "relative_path": "gateway.jsonl",
+      "source": ".",
+      "collection_time": "2026-11-13T03:48:27.110625+00:00",
+      "sha256": "81cf26104ee9fde13b3d4ed9a68aea8d84105821e25f4174181d373289d628c1",
+      "bytes": 1177,
+      "snapshot_stable": true
+    },
+    {
+      "filename": "sensor-A.jsonl",
+      "relative_path": "sensor-A.jsonl",
+      "source": ".",
+      "collection_time": "2026-11-13T03:48:27.110625+00:00",
+      "sha256": "bdbb57427fc14c2a31c7cfdf37b7e983f6db3d94dc69ddda97042188c03af69a",
+      "bytes": 650,
+      "snapshot_stable": true
+    },
+    {
+      "filename": "sensor-B.jsonl",
+      "relative_path": "sensor-B.jsonl",
+      "source": ".",
+      "collection_time": "2026-11-13T03:48:27.110625+00:00",
+      "sha256": "84c5abc40ecf3222b7b7cdf4f51f71737cb0a6714ca3208bab42790ee78060c7",
+      "bytes": 546,
+      "snapshot_stable": true
+    }
+  ],
+  "clock_estimates": {
+    "sensor-A.jsonl": {
+      "offset_seconds": 5.0,
+      "drift_seconds_per_second": 0.0,
+      "drift_ppm": 0.0,
+      "reference_timestamp": 1794000011.0,
+      "uncertainty_seconds": 0.05,
+      "anchor_count": 6,
+      "residual_range_seconds": 0.0,
+      "max_drift_ppm": 1000.0,
+      "max_residual_seconds": 2.0,
+      "applied": true,
+      "segments": []
+    },
+    "sensor-B.jsonl": {
+      "offset_seconds": -2.0,
+      "drift_seconds_per_second": 0.0,
+      "drift_ppm": 0.0,
+      "reference_timestamp": 1794000012.0,
+      "uncertainty_seconds": 0.05,
+      "anchor_count": 5,
+      "residual_range_seconds": 0.0,
+      "max_drift_ppm": 1000.0,
+      "max_residual_seconds": 2.0,
+      "applied": true,
+      "segments": []
+    }
+  },
+  "validation_issues": [
+    "gateway.jsonl: possible missing sequence ranges [(7, 7)]; loss/deletion/sequence policy are all possible",
+    "sensor-B.jsonl: possible missing sequence ranges [(3, 3)]; loss/deletion/sequence policy are all possible"
+  ],
+  "timeline": [
+    {
+      "timestamp": 1794000000.0,
+      "time_range": [
+        1793999999.95,
+        1794000000.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "boot",
+      "device_or_source": "gateway, sensor-A",
+      "event_id": "ev-001",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 1 (boot)",
+        "sensor-A.jsonl record 1 (boot)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000002.0,
+      "time_range": [
+        1794000001.95,
+        1794000002.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "auth_fail",
+      "device_or_source": "gateway, sensor-A",
+      "event_id": "ev-002",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 2 (auth_fail)",
+        "sensor-A.jsonl record 2 (auth_fail)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000003.0,
+      "time_range": [
+        1794000002.95,
+        1794000003.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "alert",
+      "device_or_source": "gateway, sensor-B",
+      "event_id": "ev-003",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 3 (alert)",
+        "sensor-B.jsonl record 1 (alert)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000004.0,
+      "time_range": [
+        1794000003.95,
+        1794000004.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "command",
+      "device_or_source": "gateway, sensor-A",
+      "event_id": "ev-004",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 4 (command)",
+        "sensor-A.jsonl record 3 (command)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000006.0,
+      "time_range": [
+        1794000005.95,
+        1794000006.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "heartbeat",
+      "device_or_source": "gateway, sensor-B",
+      "event_id": "ev-005",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 5 (heartbeat)",
+        "sensor-B.jsonl record 2 (heartbeat)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000008.0,
+      "time_range": [
+        1794000007.95,
+        1794000008.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "link_down",
+      "device_or_source": "gateway, sensor-A",
+      "event_id": "ev-006",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 6 (link_down)",
+        "sensor-A.jsonl record 4 (link_down)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000010.0,
+      "time_range": [
+        1794000007.95,
+        1794000012.05
+      ],
+      "event": "Unknown missing event(s), 1 sequence value(s)",
+      "device_or_source": "gateway",
+      "event_id": "gateway:gateway.jsonl:gap:6-8",
+      "label": "Unknown gap",
+      "time_basis": "gateway-clock-assumed",
+      "source_id": "gateway.jsonl",
+      "missing_sequence_range": [
+        7,
+        7
+      ],
+      "supporting_evidence": [
+        "gateway.jsonl sequence 6",
+        "gateway.jsonl sequence 8"
+      ],
+      "independent_source_count": 0,
+      "uncertainty_seconds": 2.0,
+      "confidence_or_uncertainty": "Bounds are adjacent recorded sequence timestamps; missing event content and exact time are unknown.",
+      "limitations": "A sequence gap can reflect loss, deletion, or a sequence assignment rule; it does not prove tampering."
+    },
+    {
+      "timestamp": 1794000010.0,
+      "time_range": [
+        1794000009.0,
+        1794000011.0
+      ],
+      "event": "Possible missing periodic 'heartbeat' event",
+      "device_or_source": "sensor-B",
+      "time_basis": "device-clock-calibrated-to-gateway",
+      "event_id": "inferred:sensor-B:heartbeat:1794000010.000000",
+      "label": "Inferred",
+      "supporting_evidence": [
+        "sensor-B.jsonl heartbeat at 1794000006.000",
+        "sensor-B.jsonl heartbeat at 1794000014.000"
+      ],
+      "independent_source_count": 1,
+      "uncertainty_seconds": 1.0,
+      "confidence_or_uncertainty": "Low-confidence periodicity hypothesis; estimated period 4.000s; display window includes ±25% of period.",
+      "limitations": "Absence may be normal silence or an unobserved behavior. This hypothesis is never counted as a recorded fact."
+    },
+    {
+      "timestamp": 1794000010.0,
+      "time_range": [
+        1794000005.95,
+        1794000014.05
+      ],
+      "event": "Unknown missing event(s), 1 sequence value(s)",
+      "device_or_source": "sensor-B",
+      "event_id": "sensor-B:sensor-B.jsonl:gap:2-4",
+      "label": "Unknown gap",
+      "time_basis": "device-clock-calibrated-to-gateway",
+      "source_id": "sensor-B.jsonl",
+      "missing_sequence_range": [
+        3,
+        3
+      ],
+      "supporting_evidence": [
+        "sensor-B.jsonl sequence 2",
+        "sensor-B.jsonl sequence 4"
+      ],
+      "independent_source_count": 0,
+      "uncertainty_seconds": 4.0,
+      "confidence_or_uncertainty": "Bounds are adjacent recorded sequence timestamps; missing event content and exact time are unknown.",
+      "limitations": "A sequence gap can reflect loss, deletion, or a sequence assignment rule; it does not prove tampering."
+    },
+    {
+      "timestamp": 1794000012.0,
+      "time_range": [
+        1794000011.95,
+        1794000012.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "recovery",
+      "device_or_source": "gateway, sensor-A",
+      "event_id": "ev-008",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 7 (recovery)",
+        "sensor-A.jsonl record 5 (recovery)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000014.0,
+      "time_range": [
+        1794000013.95,
+        1794000014.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "heartbeat",
+      "device_or_source": "gateway, sensor-B",
+      "event_id": "ev-009",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 8 (heartbeat)",
+        "sensor-B.jsonl record 3 (heartbeat)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000016.0,
+      "time_range": [
+        1794000015.95,
+        1794000016.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "command",
+      "device_or_source": "gateway, sensor-A",
+      "event_id": "ev-010",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 9 (command)",
+        "sensor-A.jsonl record 6 (command)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000018.0,
+      "time_range": [
+        1794000017.95,
+        1794000018.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "heartbeat",
+      "device_or_source": "gateway, sensor-B",
+      "event_id": "ev-011",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 10 (heartbeat)",
+        "sensor-B.jsonl record 4 (heartbeat)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    },
+    {
+      "timestamp": 1794000022.0,
+      "time_range": [
+        1794000021.95,
+        1794000022.05
+      ],
+      "time_basis": "gateway-clock-assumed",
+      "event": "heartbeat",
+      "device_or_source": "gateway, sensor-B",
+      "event_id": "ev-012",
+      "label": "Confirmed",
+      "supporting_evidence": [
+        "gateway.jsonl record 11 (heartbeat)",
+        "sensor-B.jsonl record 5 (heartbeat)"
+      ],
+      "independent_source_count": 2,
+      "uncertainty_seconds": 0.05,
+      "confidence_or_uncertainty": "2 agreeing source(s); time range ±0.050s plus source spread",
+      "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity."
+    }
+  ],
+  "limitations": [
+    "A SHA-256 hash records bytes seen during this run; it cannot establish provenance or integrity before acquisition.",
+    "Prior-manifest hash comparisons detect byte changes only when a previous manifest exists and has not itself been replaced.",
+    "Clock offsets require shared event IDs in the gateway and device evidence; estimates describe the observed anchors and do not prove gateway time is correct.",
+    "PCAP and PCAPNG support is limited to classic formats and Ethernet, raw IP, or Linux cooked headers; packet payloads are not parsed. Repeated header flows are coalesced into one-second summaries.",
+    "Sequence gaps and silence can reflect ordinary loss or device behavior; they are not proof of deletion or an attack.",
+    "Periodic-event hypotheses are low-confidence and explicitly labeled Inferred; corroboration rules cannot establish authenticity."
+  ]
+}

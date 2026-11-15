@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "created_at": "2026-11-10T22:33:56.541472+00:00",
+  "evidence_directory": "E:\\UPES NOTES\\Sem 7\\Digital Forensics\\Project\\Nexus IOT\\sample_inputs",
+  "evidence_record_count": 2,
+  "processing_seconds": 0.003845,
+  "evidence_manifest": [
+    {
+      "filename": "gateway-demo.pcap",
+      "relative_path": "gateway-demo.pcap",
+      "source": ".",
+      "collection_time": "2026-11-10T22:33:56.540507+00:00",
+      "sha256": "cc0c7560fad99048b5d21dcecb86b8ada4eb586210c0620085bbd7d597fd4da5",
+      "bytes": 140
+    }
+  ],
+  "clock_estimates": {},
+  "validation_issues": [],
+  "timeline": [
+    {
+      "timestamp": 1000.0,
+      "time_range": [
+        1000.0,
+        1000.0
+      ],
+      "event": "network_packet",
+      "device_or_source": "gateway-demo.pcap",
+      "event_id": "gateway-demo.pcap:packet-1",
+      "label": "Single-source",
+      "supporting_evidence": [
+        "gateway-demo.pcap packet 1: 192.0.2.10:42000 -> 198.51.100.20:1883 udp; mapped device(s): unknown"
+      ],
+      "independent_source_count": 1,
+      "uncertainty_seconds": 0.0,
+      "confidence_or_uncertainty": "Capture timestamp as recorded; capture clock accuracy is not independently established.",
+      "network_summary": {
+        "source_ip": "192.0.2.10",
+        "destination_ip": "198.51.100.20",
+        "protocol": "udp",
+        "source_port": 42000,
+        "destination_port": 1883,
+        "wire_bytes": 42
+      },
+      "limitations": "Header summary only; no packet payload inspected. Capture packet presence does not prove a device event."
+    },
+    {
+      "timestamp": 1002.0,
+      "time_range": [
+        1002.0,
+        1002.0
+      ],
+      "event": "network_packet",
+      "device_or_source": "gateway-demo.pcap",
+      "event_id": "gateway-demo.pcap:packet-2",
+      "label": "Single-source",
+      "supporting_evidence": [
+        "gateway-demo.pcap packet 2: 198.51.100.20:1883 -> 192.0.2.10:42000 udp; mapped device(s): unknown"
+      ],
+      "independent_source_count": 1,
+      "uncertainty_seconds": 0.0,
+      "confidence_or_uncertainty": "Capture timestamp as recorded; capture clock accuracy is not independently established.",
+      "network_summary": {
+        "source_ip": "198.51.100.20",
+        "destination_ip": "192.0.2.10",
+        "protocol": "udp",
+        "source_port": 1883,
+        "destination_port": 42000,
+        "wire_bytes": 42
+      },
+      "limitations": "Header summary only; no packet payload inspected. Capture packet presence does not prove a device event."
+    }
+  ],
+  "limitations": [
+    "A SHA-256 hash records bytes seen during this run; it cannot establish provenance or integrity before acquisition.",
+    "Prior-manifest hash comparisons detect byte changes only when a previous manifest exists and has not itself been replaced.",
+    "Clock offsets require shared event IDs in the gateway and device evidence; estimates describe the observed anchors and do not prove gateway time is correct.",
+    "PCAP and PCAPNG support is limited to classic formats and Ethernet, raw IP, or Linux cooked v1; packet payloads are not parsed.",
+    "Sequence gaps and silence can reflect ordinary loss or device behavior; they are not proof of deletion or an attack.",
+    "Periodic-event hypotheses are low-confidence and explicitly labeled Inferred; corroboration rules cannot establish authenticity."
+  ]
+}
