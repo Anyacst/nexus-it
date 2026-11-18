@@ -1,0 +1,3465 @@
+{
+  "benchmark_id": "bench-20261118-131029",
+  "created_at": "2026-11-18T07:40:29+00:00",
+  "config": {
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "scenarios": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5",
+      "S6",
+      "S7"
+    ],
+    "duration_s": 60.0,
+    "out_dir": "testbed/results/bench-20261118-131029",
+    "cases_root": "testbed/cases/bench-20261118-131029",
+    "build": true
+  },
+  "total_runs": 70,
+  "successful_runs": 70,
+  "failed_runs": 0,
+  "wall_seconds": 4960.778712749481,
+  "per_scenario": {
+    "S1": {
+      "title": "Normal operation",
+      "runs": 10,
+      "successful_runs": 10,
+      "failed_runs": 0,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metrics": {
+        "event_f1": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "timing_within_tolerance": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "evidence_completeness": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        }
+      }
+    },
+    "S2": {
+      "title": "Device disconnection",
+      "runs": 10,
+      "successful_runs": 10,
+      "failed_runs": 0,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metrics": {
+        "event_f1": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "timing_within_tolerance": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "evidence_completeness": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        }
+      }
+    },
+    "S3": {
+      "title": "Clock step",
+      "runs": 10,
+      "successful_runs": 10,
+      "failed_runs": 0,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metrics": {
+        "event_f1": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "timing_within_tolerance": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "evidence_completeness": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        }
+      }
+    },
+    "S4": {
+      "title": "Clock drift",
+      "runs": 10,
+      "successful_runs": 10,
+      "failed_runs": 0,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metrics": {
+        "event_f1": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "timing_within_tolerance": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "evidence_completeness": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        }
+      }
+    },
+    "S5": {
+      "title": "Capture gap",
+      "runs": 10,
+      "successful_runs": 10,
+      "failed_runs": 0,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metrics": {
+        "event_f1": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "event_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "timing_within_tolerance": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "evidence_completeness": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        }
+      }
+    },
+    "S6": {
+      "title": "Post-collection tampering",
+      "runs": 10,
+      "successful_runs": 10,
+      "failed_runs": 0,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metrics": {
+        "event_f1": {
+          "n": 10,
+          "mean": 0.9833863516468085,
+          "std": 0.0002079449311435421,
+          "min": 0.983050847457627
+        },
+        "event_precision": {
+          "n": 10,
+          "mean": 0.9779704828530017,
+          "std": 0.00027422057372223393,
+          "min": 0.9775280898876404
+        },
+        "event_recall": {
+          "n": 10,
+          "mean": 0.9888625477816978,
+          "std": 0.00014017503119437229,
+          "min": 0.9886363636363636
+        },
+        "timing_within_tolerance": {
+          "n": 10,
+          "mean": 0.9888625477816978,
+          "std": 0.00014017503119437229,
+          "min": 0.9886363636363636
+        },
+        "evidence_completeness": {
+          "n": 10,
+          "mean": 0.9944312738908488,
+          "std": 7.00875155971961e-05,
+          "min": 0.9943181818181818
+        },
+        "unknown_gap_precision": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        },
+        "unknown_gap_recall": {
+          "n": 10,
+          "mean": 1.0,
+          "std": 0.0,
+          "min": 1.0
+        }
+      }
+    },
+    "S7": {
+      "title": "Combined",
+      "runs": 10,
+      "successful_runs": 10,
+      "failed_runs": 0,
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "metrics": {
+        "event_f1": {
+          "n": 10,
+          "mean": 0.9833863516468085,
+          "std": 0.0002079449311435421,
+          "min": 0.983050847457627
+        },
+        "event_precision": {
+          "n": 10,
+          "mean": 0.9779704828530017,
+          "std": 0.00027422057372223393,
+          "min": 0.9775280898876404
+        },
+        "event_recall": {
+          "n": 10,
+          "mean": 0.9888625477816978,
+          "std": 0.00014017503119437229,
+          "min": 0.9886363636363636
+        },
+        "timing_within_tolerance": {
+          "n": 10,
+          "mean": 0.9888625477816978,
+          "std": 0.00014017503119437229,
+          "min": 0.9886363636363636
+        },
+        "evidence_completeness": {
+          "n": 10,
+          "mean": 0.9942874930506944,
+          "std": 9.757635328049587e-05,
+          "min": 0.9940828402366864
+        },
+        "unknown_gap_precision": {
+          "n": 10,
+          "mean": 0.9,
+          "std": 0.31622776601683794,
+          "min": 0.0
+        },
+        "unknown_gap_recall": {
+          "n": 10,
+          "mean": 0.9,
+          "std": 0.31622776601683794,
+          "min": 0.0
+        }
+      }
+    }
+  },
+  "alerts": {
+    "tamper": {
+      "positive_runs": 20,
+      "negative_runs": 50,
+      "true_positives": 20,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "true_negatives": 50,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "precision": 1.0
+    },
+    "clock": {
+      "positive_runs": 30,
+      "negative_runs": 40,
+      "true_positives": 30,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "true_negatives": 40,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "precision": 1.0
+    }
+  },
+  "runs": [
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 1,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 1,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 70.86871981620789,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-1/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0021687746047973633,
+        "maximum_absolute_time_error_seconds": 0.004757881164550781,
+        "processing_seconds": 0.039738,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 1,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 1,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "temp-sensor",
+          "container": "nexus-tb-temp-sensor",
+          "start_s": 15.9,
+          "end_s": 31.4
+        }
+      },
+      "wall_seconds": 70.93742895126343,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-1/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002375006675720215,
+        "maximum_absolute_time_error_seconds": 0.0046117305755615234,
+        "processing_seconds": 0.045351,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 1,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 1,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "motion-sensor",
+          "offset_s": -6.9,
+          "step_at_s": 43.7,
+          "step_s": -30.5
+        }
+      },
+      "wall_seconds": 71.00014185905457,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-1/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024782419204711914,
+        "maximum_absolute_time_error_seconds": 0.0033729076385498047,
+        "processing_seconds": 0.048793,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 1,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 1,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "smart-lock",
+          "drift_ppm": 14106
+        }
+      },
+      "wall_seconds": 70.99842715263367,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-1/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024410486221313477,
+        "maximum_absolute_time_error_seconds": 0.013756275177001953,
+        "processing_seconds": 0.047191,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 1,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 1,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 42.6,
+          "end_s": 48.0
+        }
+      },
+      "wall_seconds": 70.91302990913391,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-1/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0025125741958618164,
+        "maximum_absolute_time_error_seconds": 0.004597902297973633,
+        "processing_seconds": 0.042741,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 1,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 1,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-plug.jsonl",
+            "index": 12,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "door-sensor.jsonl",
+            "index": 19,
+            "new_event": "door_close"
+          },
+          {
+            "kind": "insert",
+            "file": "door-sensor.jsonl",
+            "index": 7,
+            "new_event": "door_close"
+          }
+        ]
+      },
+      "wall_seconds": 70.08562588691711,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-1/S6",
+      "score": {
+        "event_f1": 0.9834254143646408,
+        "event_precision": 0.978021978021978,
+        "event_recall": 0.9888888888888889,
+        "timing_within_tolerance": 0.9888888888888889,
+        "evidence_completeness": 0.9944444444444445,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0025436878204345703,
+        "maximum_absolute_time_error_seconds": 0.004118442535400391,
+        "processing_seconds": 0.047717,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 1,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 1,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "door-sensor",
+          "container": "nexus-tb-door-sensor",
+          "start_s": 14.6,
+          "end_s": 29.6
+        },
+        "clock_step": {
+          "device": "temp-sensor",
+          "offset_s": -2.1,
+          "step_at_s": 21.7,
+          "step_s": -10.0
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "motion-sensor.jsonl",
+            "index": 11,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "door-sensor.jsonl",
+            "index": 18,
+            "new_event": "door_open"
+          },
+          {
+            "kind": "insert",
+            "file": "door-sensor.jsonl",
+            "index": 5,
+            "new_event": "door_close"
+          }
+        ]
+      },
+      "wall_seconds": 70.99343085289001,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-1/S7",
+      "score": {
+        "event_f1": 0.9834254143646408,
+        "event_precision": 0.978021978021978,
+        "event_recall": 0.9888888888888889,
+        "timing_within_tolerance": 0.9888888888888889,
+        "evidence_completeness": 0.9942528735632183,
+        "unknown_gap_precision": 0.0,
+        "unknown_gap_recall": 0.0,
+        "true_positive_events": 89,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.002104043960571289,
+        "maximum_absolute_time_error_seconds": 0.010499000549316406,
+        "processing_seconds": 0.050805,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 2,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 2,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 70.90335988998413,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-2/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002405881881713867,
+        "maximum_absolute_time_error_seconds": 0.0037031173706054688,
+        "processing_seconds": 0.048476,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 2,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 2,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "door-sensor",
+          "container": "nexus-tb-door-sensor",
+          "start_s": 26.2,
+          "end_s": 42.1
+        }
+      },
+      "wall_seconds": 70.1785101890564,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-2/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002341747283935547,
+        "maximum_absolute_time_error_seconds": 0.0051631927490234375,
+        "processing_seconds": 0.046993,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 2,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 2,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "smart-lock",
+          "offset_s": 3.2,
+          "step_at_s": 25.3,
+          "step_s": -34.2
+        }
+      },
+      "wall_seconds": 70.95613193511963,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-2/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0021429061889648438,
+        "maximum_absolute_time_error_seconds": 0.0036940574645996094,
+        "processing_seconds": 0.047361,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 2,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 2,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "door-sensor",
+          "drift_ppm": 9394
+        }
+      },
+      "wall_seconds": 71.05877089500427,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-2/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002377748489379883,
+        "maximum_absolute_time_error_seconds": 0.0043451786041259766,
+        "processing_seconds": 0.047766,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 2,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 2,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 12.1,
+          "end_s": 26.7
+        }
+      },
+      "wall_seconds": 70.90957903862,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-2/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0021674633026123047,
+        "maximum_absolute_time_error_seconds": 0.003917217254638672,
+        "processing_seconds": 0.044335,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 2,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 2,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "door-sensor.jsonl",
+            "index": 8,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "smart-plug.jsonl",
+            "index": 5,
+            "new_event": "plug_off"
+          },
+          {
+            "kind": "insert",
+            "file": "smart-plug.jsonl",
+            "index": 11,
+            "new_event": "plug_off"
+          }
+        ]
+      },
+      "wall_seconds": 71.04906010627747,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-2/S6",
+      "score": {
+        "event_f1": 0.9832402234636872,
+        "event_precision": 0.9777777777777777,
+        "event_recall": 0.9887640449438202,
+        "timing_within_tolerance": 0.9887640449438202,
+        "evidence_completeness": 0.9943820224719101,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0020328760147094727,
+        "maximum_absolute_time_error_seconds": 0.0033342838287353516,
+        "processing_seconds": 0.050491,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 2,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 2,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "smart-lock",
+          "container": "nexus-tb-smart-lock",
+          "start_s": 9.4,
+          "end_s": 29.7
+        },
+        "clock_step": {
+          "device": "door-sensor",
+          "offset_s": 9.3,
+          "step_at_s": 48.1,
+          "step_s": -96.6
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-plug.jsonl",
+            "index": 4,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "door-sensor.jsonl",
+            "index": 10,
+            "new_event": "door_open"
+          },
+          {
+            "kind": "insert",
+            "file": "door-sensor.jsonl",
+            "index": 2,
+            "new_event": "door_open"
+          }
+        ]
+      },
+      "wall_seconds": 71.40013790130615,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-2/S7",
+      "score": {
+        "event_f1": 0.9832402234636872,
+        "event_precision": 0.9777777777777777,
+        "event_recall": 0.9887640449438202,
+        "timing_within_tolerance": 0.9887640449438202,
+        "evidence_completeness": 0.9942528735632183,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0023421049118041992,
+        "maximum_absolute_time_error_seconds": 0.0644979476928711,
+        "processing_seconds": 0.047038,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 3,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 3,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 70.68792486190796,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-3/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 92,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024298429489135742,
+        "maximum_absolute_time_error_seconds": 0.004057645797729492,
+        "processing_seconds": 0.049145,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 3,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 3,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "door-sensor",
+          "container": "nexus-tb-door-sensor",
+          "start_s": 8.6,
+          "end_s": 16.8
+        }
+      },
+      "wall_seconds": 70.99444103240967,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-3/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 92,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002088308334350586,
+        "maximum_absolute_time_error_seconds": 0.0034084320068359375,
+        "processing_seconds": 0.046345,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 3,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 3,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "smart-plug",
+          "offset_s": 2.2,
+          "step_at_s": 13.9,
+          "step_s": 48.8
+        }
+      },
+      "wall_seconds": 71.23653507232666,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-3/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 92,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0020259618759155273,
+        "maximum_absolute_time_error_seconds": 0.008083581924438477,
+        "processing_seconds": 0.035719,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 3,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 3,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "door-sensor",
+          "drift_ppm": 15011
+        }
+      },
+      "wall_seconds": 70.72859597206116,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-3/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 92,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0020325183868408203,
+        "maximum_absolute_time_error_seconds": 0.002868175506591797,
+        "processing_seconds": 0.045697,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 3,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 3,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 33.7,
+          "end_s": 42.9
+        }
+      },
+      "wall_seconds": 71.07713389396667,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-3/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 92,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0018500089645385742,
+        "maximum_absolute_time_error_seconds": 0.0047855377197265625,
+        "processing_seconds": 0.043599,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 3,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 3,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-plug.jsonl",
+            "index": 8,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "temp-sensor.jsonl",
+            "index": 2,
+            "new_event": "temperature_reading_forced"
+          },
+          {
+            "kind": "insert",
+            "file": "temp-sensor.jsonl",
+            "index": 17,
+            "new_event": "temperature_reading"
+          }
+        ]
+      },
+      "wall_seconds": 71.01048803329468,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-3/S6",
+      "score": {
+        "event_f1": 0.9837837837837837,
+        "event_precision": 0.978494623655914,
+        "event_recall": 0.9891304347826086,
+        "timing_within_tolerance": 0.9891304347826086,
+        "evidence_completeness": 0.9945652173913043,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 91,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0017657279968261719,
+        "maximum_absolute_time_error_seconds": 0.0036568641662597656,
+        "processing_seconds": 0.04795,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 3,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 3,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "door-sensor",
+          "container": "nexus-tb-door-sensor",
+          "start_s": 13.6,
+          "end_s": 28.2
+        },
+        "clock_step": {
+          "device": "temp-sensor",
+          "offset_s": -1.4,
+          "step_at_s": 16.9,
+          "step_s": -15.6
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-plug.jsonl",
+            "index": 11,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "door-sensor.jsonl",
+            "index": 12,
+            "new_event": "door_open"
+          },
+          {
+            "kind": "insert",
+            "file": "door-sensor.jsonl",
+            "index": 16,
+            "new_event": "door_open"
+          }
+        ]
+      },
+      "wall_seconds": 70.83438515663147,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-3/S7",
+      "score": {
+        "event_f1": 0.9837837837837837,
+        "event_precision": 0.978494623655914,
+        "event_recall": 0.9891304347826086,
+        "timing_within_tolerance": 0.9891304347826086,
+        "evidence_completeness": 0.994413407821229,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 91,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0023124217987060547,
+        "maximum_absolute_time_error_seconds": 0.005529642105102539,
+        "processing_seconds": 0.04881,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 4,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 4,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 70.94682216644287,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-4/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024012327194213867,
+        "maximum_absolute_time_error_seconds": 0.003437519073486328,
+        "processing_seconds": 0.050206,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 4,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 4,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "smart-lock",
+          "container": "nexus-tb-smart-lock",
+          "start_s": 9.6,
+          "end_s": 27.9
+        }
+      },
+      "wall_seconds": 70.96835684776306,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-4/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024379491806030273,
+        "maximum_absolute_time_error_seconds": 0.0034055709838867188,
+        "processing_seconds": 0.0515,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 4,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 4,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "smart-plug",
+          "offset_s": -2.9,
+          "step_at_s": 30.4,
+          "step_s": 110.6
+        }
+      },
+      "wall_seconds": 69.96230721473694,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-4/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.00256955623626709,
+        "maximum_absolute_time_error_seconds": 0.004166841506958008,
+        "processing_seconds": 0.047593,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 4,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 4,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "smart-plug",
+          "drift_ppm": -19855
+        }
+      },
+      "wall_seconds": 70.14481782913208,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-4/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024666786193847656,
+        "maximum_absolute_time_error_seconds": 0.004205942153930664,
+        "processing_seconds": 0.047468,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 4,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 4,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 12.2,
+          "end_s": 23.2
+        }
+      },
+      "wall_seconds": 70.95349717140198,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-4/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002528548240661621,
+        "maximum_absolute_time_error_seconds": 0.003073453903198242,
+        "processing_seconds": 0.042978,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 4,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 4,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "temp-sensor.jsonl",
+            "index": 16,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "smart-lock.jsonl",
+            "index": 7,
+            "new_event": "lock_released"
+          },
+          {
+            "kind": "insert",
+            "file": "smart-lock.jsonl",
+            "index": 2,
+            "new_event": "lock_engaged"
+          }
+        ]
+      },
+      "wall_seconds": 71.00125908851624,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-4/S6",
+      "score": {
+        "event_f1": 0.9834254143646408,
+        "event_precision": 0.978021978021978,
+        "event_recall": 0.9888888888888889,
+        "timing_within_tolerance": 0.9888888888888889,
+        "evidence_completeness": 0.9944444444444445,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.002469778060913086,
+        "maximum_absolute_time_error_seconds": 0.0045282840728759766,
+        "processing_seconds": 0.047868,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 4,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 4,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "motion-sensor",
+          "container": "nexus-tb-motion-sensor",
+          "start_s": 16.0,
+          "end_s": 29.0
+        },
+        "clock_step": {
+          "device": "smart-plug",
+          "offset_s": 7.3,
+          "step_at_s": 44.6,
+          "step_s": -118.9
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "motion-sensor.jsonl",
+            "index": 8,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "smart-lock.jsonl",
+            "index": 5,
+            "new_event": "lock_released"
+          },
+          {
+            "kind": "insert",
+            "file": "smart-lock.jsonl",
+            "index": 2,
+            "new_event": "lock_engaged"
+          }
+        ]
+      },
+      "wall_seconds": 70.96101403236389,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-4/S7",
+      "score": {
+        "event_f1": 0.9834254143646408,
+        "event_precision": 0.978021978021978,
+        "event_recall": 0.9888888888888889,
+        "timing_within_tolerance": 0.9888888888888889,
+        "evidence_completeness": 0.9943820224719101,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.002423524856567383,
+        "maximum_absolute_time_error_seconds": 0.0035696029663085938,
+        "processing_seconds": 0.048015,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 5,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 5,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 71.10174202919006,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-5/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024585723876953125,
+        "maximum_absolute_time_error_seconds": 0.0031709671020507812,
+        "processing_seconds": 0.050866,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 5,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 5,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "temp-sensor",
+          "container": "nexus-tb-temp-sensor",
+          "start_s": 12.2,
+          "end_s": 23.1
+        }
+      },
+      "wall_seconds": 70.85121703147888,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-5/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0025496482849121094,
+        "maximum_absolute_time_error_seconds": 0.0033292770385742188,
+        "processing_seconds": 0.046669,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 5,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 5,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "smart-lock",
+          "offset_s": -9.8,
+          "step_at_s": 37.3,
+          "step_s": -19.1
+        }
+      },
+      "wall_seconds": 70.01098012924194,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-5/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0023698806762695312,
+        "maximum_absolute_time_error_seconds": 0.0027456283569335938,
+        "processing_seconds": 0.047919,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 5,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 5,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "motion-sensor",
+          "drift_ppm": 8960
+        }
+      },
+      "wall_seconds": 69.99281215667725,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-5/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002456188201904297,
+        "maximum_absolute_time_error_seconds": 0.0028960704803466797,
+        "processing_seconds": 0.047617,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 5,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 5,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 25.7,
+          "end_s": 36.6
+        }
+      },
+      "wall_seconds": 70.05976724624634,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-5/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002390146255493164,
+        "maximum_absolute_time_error_seconds": 0.003712892532348633,
+        "processing_seconds": 0.044149,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 5,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 5,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "motion-sensor.jsonl",
+            "index": 7,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "smart-lock.jsonl",
+            "index": 5,
+            "new_event": "lock_released"
+          },
+          {
+            "kind": "insert",
+            "file": "smart-lock.jsonl",
+            "index": 8,
+            "new_event": "lock_engaged"
+          }
+        ]
+      },
+      "wall_seconds": 71.04492783546448,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-5/S6",
+      "score": {
+        "event_f1": 0.9832402234636872,
+        "event_precision": 0.9777777777777777,
+        "event_recall": 0.9887640449438202,
+        "timing_within_tolerance": 0.9887640449438202,
+        "evidence_completeness": 0.9943820224719101,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0024671554565429688,
+        "maximum_absolute_time_error_seconds": 0.0034754276275634766,
+        "processing_seconds": 0.042199,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 5,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 5,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "temp-sensor",
+          "container": "nexus-tb-temp-sensor",
+          "start_s": 44.3,
+          "end_s": 53.2
+        },
+        "clock_step": {
+          "device": "motion-sensor",
+          "offset_s": -0.8,
+          "step_at_s": 26.8,
+          "step_s": 40.3
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-plug.jsonl",
+            "index": 2,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "motion-sensor.jsonl",
+            "index": 4,
+            "new_event": "motion_detected"
+          },
+          {
+            "kind": "insert",
+            "file": "motion-sensor.jsonl",
+            "index": 9,
+            "new_event": "motion_cleared"
+          }
+        ]
+      },
+      "wall_seconds": 70.83749723434448,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-5/S7",
+      "score": {
+        "event_f1": 0.9832402234636872,
+        "event_precision": 0.9777777777777777,
+        "event_recall": 0.9887640449438202,
+        "timing_within_tolerance": 0.9887640449438202,
+        "evidence_completeness": 0.9942196531791907,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0025125741958618164,
+        "maximum_absolute_time_error_seconds": 0.003039121627807617,
+        "processing_seconds": 0.046444,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 6,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 6,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 70.12610602378845,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-6/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002390265464782715,
+        "maximum_absolute_time_error_seconds": 0.003036022186279297,
+        "processing_seconds": 0.047709,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 6,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 6,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "smart-lock",
+          "container": "nexus-tb-smart-lock",
+          "start_s": 8.1,
+          "end_s": 28.0
+        }
+      },
+      "wall_seconds": 71.04996681213379,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-6/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0023986101150512695,
+        "maximum_absolute_time_error_seconds": 0.003998994827270508,
+        "processing_seconds": 0.04749,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 6,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 6,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "temp-sensor",
+          "offset_s": 5.4,
+          "step_at_s": 7.4,
+          "step_s": -80.7
+        }
+      },
+      "wall_seconds": 71.03055000305176,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-6/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002407073974609375,
+        "maximum_absolute_time_error_seconds": 0.003139972686767578,
+        "processing_seconds": 0.052733,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 6,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 6,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "motion-sensor",
+          "drift_ppm": -14356
+        }
+      },
+      "wall_seconds": 71.0681700706482,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-6/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024480819702148438,
+        "maximum_absolute_time_error_seconds": 0.01852560043334961,
+        "processing_seconds": 0.049612,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 6,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 6,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 36.3,
+          "end_s": 51.1
+        }
+      },
+      "wall_seconds": 70.89877796173096,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-6/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.00249326229095459,
+        "maximum_absolute_time_error_seconds": 0.0032892227172851562,
+        "processing_seconds": 0.041901,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 6,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 6,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-plug.jsonl",
+            "index": 8,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "door-sensor.jsonl",
+            "index": 6,
+            "new_event": "door_open"
+          },
+          {
+            "kind": "insert",
+            "file": "door-sensor.jsonl",
+            "index": 2,
+            "new_event": "door_open"
+          }
+        ]
+      },
+      "wall_seconds": 70.90171694755554,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-6/S6",
+      "score": {
+        "event_f1": 0.9834254143646408,
+        "event_precision": 0.978021978021978,
+        "event_recall": 0.9888888888888889,
+        "timing_within_tolerance": 0.9888888888888889,
+        "evidence_completeness": 0.9944444444444445,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0023567676544189453,
+        "maximum_absolute_time_error_seconds": 0.0029344558715820312,
+        "processing_seconds": 0.048709,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 6,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 6,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "smart-plug",
+          "container": "nexus-tb-smart-plug",
+          "start_s": 31.2,
+          "end_s": 44.6
+        },
+        "clock_step": {
+          "device": "temp-sensor",
+          "offset_s": -2.8,
+          "step_at_s": 47.3,
+          "step_s": -98.0
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "motion-sensor.jsonl",
+            "index": 8,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "smart-plug.jsonl",
+            "index": 4,
+            "new_event": "plug_on"
+          },
+          {
+            "kind": "insert",
+            "file": "smart-plug.jsonl",
+            "index": 13,
+            "new_event": "plug_off"
+          }
+        ]
+      },
+      "wall_seconds": 71.04196882247925,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-6/S7",
+      "score": {
+        "event_f1": 0.9834254143646408,
+        "event_precision": 0.978021978021978,
+        "event_recall": 0.9888888888888889,
+        "timing_within_tolerance": 0.9888888888888889,
+        "evidence_completeness": 0.9943181818181818,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.002369403839111328,
+        "maximum_absolute_time_error_seconds": 0.0036857128143310547,
+        "processing_seconds": 0.049035,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 7,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 7,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 70.90579199790955,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-7/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0025087594985961914,
+        "maximum_absolute_time_error_seconds": 0.00305938720703125,
+        "processing_seconds": 0.048965,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 7,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 7,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "smart-lock",
+          "container": "nexus-tb-smart-lock",
+          "start_s": 19.0,
+          "end_s": 34.0
+        }
+      },
+      "wall_seconds": 70.10867619514465,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-7/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002396821975708008,
+        "maximum_absolute_time_error_seconds": 0.0026798248291015625,
+        "processing_seconds": 0.048356,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 7,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 7,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "smart-lock",
+          "offset_s": -1.5,
+          "step_at_s": 23.1,
+          "step_s": -71.8
+        }
+      },
+      "wall_seconds": 71.00359082221985,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-7/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024797916412353516,
+        "maximum_absolute_time_error_seconds": 0.013289451599121094,
+        "processing_seconds": 0.047896,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 7,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 7,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "motion-sensor",
+          "drift_ppm": 16982
+        }
+      },
+      "wall_seconds": 70.87436294555664,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-7/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024368762969970703,
+        "maximum_absolute_time_error_seconds": 0.005153179168701172,
+        "processing_seconds": 0.048739,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 7,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 7,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 47.3,
+          "end_s": 53.3
+        }
+      },
+      "wall_seconds": 69.95199203491211,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-7/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024870634078979492,
+        "maximum_absolute_time_error_seconds": 0.002786397933959961,
+        "processing_seconds": 0.045651,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 7,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 7,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "door-sensor.jsonl",
+            "index": 2,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "smart-plug.jsonl",
+            "index": 12,
+            "new_event": "plug_on"
+          },
+          {
+            "kind": "insert",
+            "file": "smart-plug.jsonl",
+            "index": 2,
+            "new_event": "plug_on"
+          }
+        ]
+      },
+      "wall_seconds": 70.19338798522949,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-7/S6",
+      "score": {
+        "event_f1": 0.9834254143646408,
+        "event_precision": 0.978021978021978,
+        "event_recall": 0.9888888888888889,
+        "timing_within_tolerance": 0.9888888888888889,
+        "evidence_completeness": 0.9944444444444445,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.00244140625,
+        "maximum_absolute_time_error_seconds": 0.00731658935546875,
+        "processing_seconds": 0.048197,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 7,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 7,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "motion-sensor",
+          "container": "nexus-tb-motion-sensor",
+          "start_s": 28.0,
+          "end_s": 47.6
+        },
+        "clock_step": {
+          "device": "smart-lock",
+          "offset_s": 0.2,
+          "step_at_s": 19.2,
+          "step_s": -106.5
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-plug.jsonl",
+            "index": 11,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "motion-sensor.jsonl",
+            "index": 10,
+            "new_event": "motion_detected"
+          },
+          {
+            "kind": "insert",
+            "file": "motion-sensor.jsonl",
+            "index": 8,
+            "new_event": "motion_detected"
+          }
+        ]
+      },
+      "wall_seconds": 70.85991978645325,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-7/S7",
+      "score": {
+        "event_f1": 0.9834254143646408,
+        "event_precision": 0.978021978021978,
+        "event_recall": 0.9888888888888889,
+        "timing_within_tolerance": 0.9888888888888889,
+        "evidence_completeness": 0.9943181818181818,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.002440929412841797,
+        "maximum_absolute_time_error_seconds": 0.0038678646087646484,
+        "processing_seconds": 0.048476,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 8,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 8,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 70.08342504501343,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-8/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024383068084716797,
+        "maximum_absolute_time_error_seconds": 0.003158092498779297,
+        "processing_seconds": 0.048613,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 8,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 8,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "temp-sensor",
+          "container": "nexus-tb-temp-sensor",
+          "start_s": 28.7,
+          "end_s": 43.0
+        }
+      },
+      "wall_seconds": 71.02641987800598,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-8/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024728775024414062,
+        "maximum_absolute_time_error_seconds": 0.0035092830657958984,
+        "processing_seconds": 0.046197,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 8,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 8,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "temp-sensor",
+          "offset_s": -8.1,
+          "step_at_s": 29.2,
+          "step_s": -82.6
+        }
+      },
+      "wall_seconds": 70.97507882118225,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-8/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024399757385253906,
+        "maximum_absolute_time_error_seconds": 0.0029892921447753906,
+        "processing_seconds": 0.051691,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 8,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 8,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "smart-lock",
+          "drift_ppm": 6605
+        }
+      },
+      "wall_seconds": 70.93291282653809,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-8/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024204254150390625,
+        "maximum_absolute_time_error_seconds": 0.0048449039459228516,
+        "processing_seconds": 0.050652,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 8,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 8,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 48.1,
+          "end_s": 53.8
+        }
+      },
+      "wall_seconds": 69.96630191802979,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-8/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 89,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002385377883911133,
+        "maximum_absolute_time_error_seconds": 0.00292205810546875,
+        "processing_seconds": 0.045174,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 8,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 8,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "motion-sensor.jsonl",
+            "index": 10,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "temp-sensor.jsonl",
+            "index": 23,
+            "new_event": "temperature_reading_forced"
+          },
+          {
+            "kind": "insert",
+            "file": "temp-sensor.jsonl",
+            "index": 8,
+            "new_event": "temperature_reading"
+          }
+        ]
+      },
+      "wall_seconds": 70.05421900749207,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-8/S6",
+      "score": {
+        "event_f1": 0.9832402234636872,
+        "event_precision": 0.9777777777777777,
+        "event_recall": 0.9887640449438202,
+        "timing_within_tolerance": 0.9887640449438202,
+        "evidence_completeness": 0.9943820224719101,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.002384185791015625,
+        "maximum_absolute_time_error_seconds": 0.002931356430053711,
+        "processing_seconds": 0.048577,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 8,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 8,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "smart-plug",
+          "container": "nexus-tb-smart-plug",
+          "start_s": 20.7,
+          "end_s": 36.6
+        },
+        "clock_step": {
+          "device": "temp-sensor",
+          "offset_s": 7.3,
+          "step_at_s": 31.3,
+          "step_s": 45.6
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "temp-sensor.jsonl",
+            "index": 11,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "smart-plug.jsonl",
+            "index": 2,
+            "new_event": "plug_on"
+          },
+          {
+            "kind": "insert",
+            "file": "smart-plug.jsonl",
+            "index": 11,
+            "new_event": "plug_off"
+          }
+        ]
+      },
+      "wall_seconds": 71.05253982543945,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-8/S7",
+      "score": {
+        "event_f1": 0.9832402234636872,
+        "event_precision": 0.9777777777777777,
+        "event_recall": 0.9887640449438202,
+        "timing_within_tolerance": 0.9887640449438202,
+        "evidence_completeness": 0.9942528735632183,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.002443671226501465,
+        "maximum_absolute_time_error_seconds": 0.0033805370330810547,
+        "processing_seconds": 0.049321,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 9,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 9,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 71.12013697624207,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-9/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 91,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024938583374023438,
+        "maximum_absolute_time_error_seconds": 0.0037186145782470703,
+        "processing_seconds": 0.048719,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 9,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 9,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "temp-sensor",
+          "container": "nexus-tb-temp-sensor",
+          "start_s": 22.3,
+          "end_s": 36.2
+        }
+      },
+      "wall_seconds": 70.93643403053284,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-9/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 91,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002557516098022461,
+        "maximum_absolute_time_error_seconds": 0.0028734207153320312,
+        "processing_seconds": 0.048425,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 9,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 9,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "motion-sensor",
+          "offset_s": -5.8,
+          "step_at_s": 30.4,
+          "step_s": -100.9
+        }
+      },
+      "wall_seconds": 71.12486600875854,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-9/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 91,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002508401870727539,
+        "maximum_absolute_time_error_seconds": 0.004522800445556641,
+        "processing_seconds": 0.049468,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 9,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 9,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "smart-lock",
+          "drift_ppm": -13258
+        }
+      },
+      "wall_seconds": 70.97728204727173,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-9/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 91,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002433300018310547,
+        "maximum_absolute_time_error_seconds": 0.0038640499114990234,
+        "processing_seconds": 0.048485,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 9,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 9,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 33.6,
+          "end_s": 47.4
+        }
+      },
+      "wall_seconds": 70.91683197021484,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-9/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 91,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0026531219482421875,
+        "maximum_absolute_time_error_seconds": 0.004261970520019531,
+        "processing_seconds": 0.03905,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 9,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 9,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-lock.jsonl",
+            "index": 6,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "door-sensor.jsonl",
+            "index": 16,
+            "new_event": "door_open"
+          },
+          {
+            "kind": "insert",
+            "file": "door-sensor.jsonl",
+            "index": 8,
+            "new_event": "door_open"
+          }
+        ]
+      },
+      "wall_seconds": 71.02655720710754,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-9/S6",
+      "score": {
+        "event_f1": 0.9836065573770493,
+        "event_precision": 0.9782608695652174,
+        "event_recall": 0.989010989010989,
+        "timing_within_tolerance": 0.989010989010989,
+        "evidence_completeness": 0.9945054945054945,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0025321245193481445,
+        "maximum_absolute_time_error_seconds": 0.002791881561279297,
+        "processing_seconds": 0.048793,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 9,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 9,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "smart-plug",
+          "container": "nexus-tb-smart-plug",
+          "start_s": 9.9,
+          "end_s": 23.4
+        },
+        "clock_step": {
+          "device": "temp-sensor",
+          "offset_s": 0.3,
+          "step_at_s": 7.2,
+          "step_s": 78.9
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-lock.jsonl",
+            "index": 3,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "motion-sensor.jsonl",
+            "index": 9,
+            "new_event": "motion_cleared"
+          },
+          {
+            "kind": "insert",
+            "file": "motion-sensor.jsonl",
+            "index": 5,
+            "new_event": "motion_cleared"
+          }
+        ]
+      },
+      "wall_seconds": 70.88311576843262,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-9/S7",
+      "score": {
+        "event_f1": 0.9836065573770493,
+        "event_precision": 0.9782608695652174,
+        "event_recall": 0.989010989010989,
+        "timing_within_tolerance": 0.989010989010989,
+        "evidence_completeness": 0.9943820224719101,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 90,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0025180578231811523,
+        "maximum_absolute_time_error_seconds": 0.003193378448486328,
+        "processing_seconds": 0.050845,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S1",
+      "title": "Normal operation",
+      "seed": 10,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 10,
+        "duration_s": 60.0
+      },
+      "wall_seconds": 71.08963298797607,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-10/S1",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024756193161010742,
+        "maximum_absolute_time_error_seconds": 0.0035462379455566406,
+        "processing_seconds": 0.049332,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S2",
+      "title": "Device disconnection",
+      "seed": 10,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 10,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "motion-sensor",
+          "container": "nexus-tb-motion-sensor",
+          "start_s": 20.7,
+          "end_s": 39.5
+        }
+      },
+      "wall_seconds": 70.89669609069824,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-10/S2",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0024869441986083984,
+        "maximum_absolute_time_error_seconds": 0.003292560577392578,
+        "processing_seconds": 0.045982,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S3",
+      "title": "Clock step",
+      "seed": 10,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 10,
+        "duration_s": 60.0,
+        "clock_step": {
+          "device": "smart-plug",
+          "offset_s": 4.5,
+          "step_at_s": 15.0,
+          "step_s": -39.1
+        }
+      },
+      "wall_seconds": 71.02173686027527,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-10/S3",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.002513408660888672,
+        "maximum_absolute_time_error_seconds": 0.002736330032348633,
+        "processing_seconds": 0.048075,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S4",
+      "title": "Clock drift",
+      "seed": 10,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 10,
+        "duration_s": 60.0,
+        "clock_drift": {
+          "device": "smart-lock",
+          "drift_ppm": 16898
+        }
+      },
+      "wall_seconds": 70.9612557888031,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-10/S4",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0023723840713500977,
+        "maximum_absolute_time_error_seconds": 0.01180410385131836,
+        "processing_seconds": 0.04577,
+        "tamper_alert": false,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S5",
+      "title": "Capture gap",
+      "seed": 10,
+      "status": "ok",
+      "tampering_seeded": false,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 10,
+        "duration_s": 60.0,
+        "capture_gap": {
+          "start_s": 14.2,
+          "end_s": 22.4
+        }
+      },
+      "wall_seconds": 71.75653195381165,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-10/S5",
+      "score": {
+        "event_f1": 1.0,
+        "event_precision": 1.0,
+        "event_recall": 1.0,
+        "timing_within_tolerance": 1.0,
+        "evidence_completeness": 1.0,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 88,
+        "false_positive_events": 0,
+        "missed_events": 0,
+        "median_absolute_time_error_seconds": 0.0025063753128051758,
+        "maximum_absolute_time_error_seconds": 0.003977537155151367,
+        "processing_seconds": 0.051967,
+        "tamper_alert": false,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S6",
+      "title": "Post-collection tampering",
+      "seed": 10,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": false,
+      "parameters": {
+        "seed": 10,
+        "duration_s": 60.0,
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-plug.jsonl",
+            "index": 11,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "door-sensor.jsonl",
+            "index": 15,
+            "new_event": "door_close"
+          },
+          {
+            "kind": "insert",
+            "file": "door-sensor.jsonl",
+            "index": 14,
+            "new_event": "door_open"
+          }
+        ]
+      },
+      "wall_seconds": 70.31081795692444,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-10/S6",
+      "score": {
+        "event_f1": 0.983050847457627,
+        "event_precision": 0.9775280898876404,
+        "event_recall": 0.9886363636363636,
+        "timing_within_tolerance": 0.9886363636363636,
+        "evidence_completeness": 0.9943181818181818,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 87,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0021805763244628906,
+        "maximum_absolute_time_error_seconds": 0.0027244091033935547,
+        "processing_seconds": 0.048852,
+        "tamper_alert": true,
+        "clock_anomaly_alert": false
+      },
+      "error": null
+    },
+    {
+      "scenario_id": "S7",
+      "title": "Combined",
+      "seed": 10,
+      "status": "ok",
+      "tampering_seeded": true,
+      "clock_manipulated": true,
+      "parameters": {
+        "seed": 10,
+        "duration_s": 60.0,
+        "disconnect": {
+          "device": "temp-sensor",
+          "container": "nexus-tb-temp-sensor",
+          "start_s": 21.6,
+          "end_s": 33.4
+        },
+        "clock_step": {
+          "device": "door-sensor",
+          "offset_s": -8.6,
+          "step_at_s": 49.9,
+          "step_s": 71.2
+        },
+        "tamper": [
+          {
+            "kind": "delete",
+            "file": "smart-lock.jsonl",
+            "index": 2,
+            "new_event": null
+          },
+          {
+            "kind": "edit",
+            "file": "motion-sensor.jsonl",
+            "index": 8,
+            "new_event": "motion_detected"
+          },
+          {
+            "kind": "insert",
+            "file": "motion-sensor.jsonl",
+            "index": 4,
+            "new_event": "motion_detected"
+          }
+        ]
+      },
+      "wall_seconds": 70.97427892684937,
+      "case_dir": "testbed/cases/bench-20261118-131029/seed-10/S7",
+      "score": {
+        "event_f1": 0.983050847457627,
+        "event_precision": 0.9775280898876404,
+        "event_recall": 0.9886363636363636,
+        "timing_within_tolerance": 0.9886363636363636,
+        "evidence_completeness": 0.9940828402366864,
+        "unknown_gap_precision": 1.0,
+        "unknown_gap_recall": 1.0,
+        "true_positive_events": 87,
+        "false_positive_events": 2,
+        "missed_events": 1,
+        "median_absolute_time_error_seconds": 0.0023522377014160156,
+        "maximum_absolute_time_error_seconds": 0.0071337223052978516,
+        "processing_seconds": 0.045372,
+        "tamper_alert": true,
+        "clock_anomaly_alert": true
+      },
+      "error": null
+    }
+  ],
+  "limits": [
+    "Synthetic testbed: simulated devices publish scripted telemetry on a closed Docker network; scores describe tool behaviour on this testbed, not on real IoT hardware or traffic.",
+    "All containers share the host clock. Device clock faults (offset, drift, step) are simulated in software and the gateway clock is taken as true time.",
+    "Small samples: each scenario is run once per seed, so a std over a few seeds is a rough spread, not a confidence interval. Alert rates are per run (scenario level), not per event.",
+    "Seeds vary fault parameters, device jitter and values; the seven fault families are fixed and only S7 combines faults.",
+    "Ground truth for delivery comes from the pre-tamper gateway log, so a missed source row means one the gateway actually logged. Docker timing (disconnect detection, reconnect delay) adds variance the seed does not control.",
+    "Clock steps may be negative (clock set back). The analyzer models a single backward step and reports it as a clock change; a backward jump it cannot explain is still read as possible tampering and counts as a tamper false positive here."
+  ]
+}

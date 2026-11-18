@@ -106,6 +106,8 @@ python3 -m testbed.runner.run_scenario all --analyze
 python3 -m testbed.runner.benchmark --seeds 1 2 3 --scenarios all --duration 60
 ```
 
+Latest full run (v1.3.0, 10 seeds × 7 scenarios, 70 runs): mean event F1 0.995, median time error about 2 ms, and every tampering and clock fault detected with no false alarms. The only event errors are the fabricated and edited lines in the tampering scenarios. Details and caveats: [benchmark results](docs/PROJECT_DOCUMENTATION.md#testbed-benchmark-results) and [`metrics.md`](testbed/results/bench-20261118-131029/metrics.md).
+
 ## Project layout
 
 ```text

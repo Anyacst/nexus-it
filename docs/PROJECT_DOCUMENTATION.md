@@ -80,7 +80,7 @@ On its 10 synthetic cases the tool scores 94.8% event precision and 96.5% recall
 
 *Source: `derived/evaluation/metrics.md` in the repository, 10 synthetic cases.*
 
-Errors appear only where tampering inserts or edits records: inserted claims count as false positives, edited ones as misses. Unknown-gap and inferred-event precision and recall are 100%, mean completeness is 96.7%, and each case processes in about 0.018 s. These figures describe the generated fixtures only; the Docker testbed will provide a harder, more realistic benchmark.
+Errors appear only where tampering inserts or edits records: inserted claims count as false positives, edited ones as misses. Unknown-gap and inferred-event precision and recall are 100%, mean completeness is 96.7%, and each case processes in about 0.018 s. These figures describe the generated fixtures only; the Docker testbed results below come from real MQTT traffic, TCP capture and container timing.
 
 ## Remaining work
 
@@ -126,6 +126,35 @@ A Docker Compose testbed replaces physical hardware: five Python device containe
 | S5 | Capture gap | packet capture stopped for 5-15 s |
 | S6 | Post-collection tampering | one line deleted in one log; one edited and one fabricated line in another |
 | S7 | Combined | disconnect + clock step + tampering |
+
+### Testbed benchmark results
+
+The full benchmark ran every scenario with 10 seeds (70 runs of 60 s, about 83 minutes) on v1.3.0. All 70 runs completed and were scored. Command: `python3 -m testbed.runner.benchmark --seeds 1 2 3 4 5 6 7 8 9 10 --scenarios all --duration 60`. Full per-run table: [`testbed/results/bench-20261118-131029/metrics.md`](../testbed/results/bench-20261118-131029/metrics.md).
+
+| Scenario | Runs | Event F1 | Precision | Recall | Time within 1 s | Completeness | Gap precision / recall |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| S1 Normal operation | 10/10 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 / 1.000 |
+| S2 Device disconnection | 10/10 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 / 1.000 |
+| S3 Clock step | 10/10 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 / 1.000 |
+| S4 Clock drift | 10/10 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 / 1.000 |
+| S5 Capture gap | 10/10 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 / 1.000 |
+| S6 Post-collection tampering | 10/10 | 0.983 | 0.978 | 0.989 | 0.989 | 0.994 | 1.000 / 1.000 |
+| S7 Combined | 10/10 | 0.983 | 0.978 | 0.989 | 0.989 | 0.994 | 0.900 / 0.900 |
+
+| Alert | Positive runs | Detected | False alarms (of negative runs) |
+| --- | --- | --- | --- |
+| Tampering | 20 (S6, S7) | 20 | 0 of 50 |
+| Clock manipulation | 30 (S3, S4, S7) | 30 | 0 of 40 |
+
+**What the numbers show.**
+
+- Across 6,286 ground-truth events the mean event F1 is 0.995. The median absolute time error is 2.4 ms on average and the largest single error is 64 ms, including runs with clock steps of up to 119 s and drift of up to 20,000 ppm.
+- Every tampered run raised a tamper alert and every clock-fault run a clock alert, with no false alarms on the 50 and 40 runs without those faults. This includes the 14 runs where a device clock was set backwards, which versions before the backward-step model misread as tampering.
+- The only event errors come from the tampering itself, exactly as in the synthetic cases: each S6/S7 run has two false positives (the fabricated line and the edited line's new claim) and one miss (the event the edited line replaced). Completeness below 1.0 is the deleted line.
+- S7 seed 1 scores 0 for gap precision and recall, but the analyzer did find the deletion. The deleted line was the last one in `motion-sensor.jsonl`, so no later sequence number exposes it. The analyzer reported it instead as an Unknown gap ("Device log record for motion-sensor-00012 is absent; gateway recorded 'motion_detected'") and as a validation issue. The scorer only credits gaps that carry a missing sequence range, so this run counts as a miss. The scorer was not changed after seeing the result.
+- Analysis takes about 0.05 s per case (about 90 events from five devices plus a capture).
+
+These results show the tool behaves as designed on this testbed. They are not a measure of real-world accuracy: the testbed was built alongside the analyzer, containers share the host clock, clock faults are simulated in software, and each fault family is fixed.
 
 ## Roadmap and milestones
 
