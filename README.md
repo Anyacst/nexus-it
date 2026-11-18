@@ -201,7 +201,7 @@ Reported measures:
 - **Maximum absolute time error:** worst correct-match timestamp deviation; the median alone can hide individual failures.
 - **Event-label accuracy:** Confirmed versus Single-source agreement with the known available sources. It does not score Inferred or Unknown-gap rows.
 - **Pairwise order accuracy:** correctly ordered event pairs among correctly matched events.
-- **Unknown-gap precision and recall:** compare predicted sequence values missing from a source with intentionally omitted expected source rows.
+- **Unknown-gap precision and recall:** compare predicted sequence values missing from a source with intentionally omitted expected source rows. A gateway record with no device log line (for example, the last line of a log deleted) is placed at that event's sequence number in the device log; if it names an event the device should not have logged, it counts as a false gap.
 - **Inferred-event precision and recall:** match explicitly inferred events to events removed from every source, by event name and within one second.
 - **Tamper alert recall, false-positive rate, and precision:** scenario-level alerts for conflicting event claims or a hash change from a prior manifest, scored against seeded tamper scenarios. This deliberately does not count ordinary gaps as tampering.
 - **Evidence completeness:** expected source-event rows present, matched by event ID in the corresponding ground-truth device file and gateway file, divided by all expected source-event rows. Extra inserted rows do not compensate for a missing row.

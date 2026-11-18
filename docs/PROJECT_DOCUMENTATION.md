@@ -1,6 +1,6 @@
 # NEXUS-IoT Project Documentation
 
-Last updated: 18 Nov 2026 (v1.3.0) · Living version: [Claude Docs](https://claude.ai/artifact/TWNi6v9BzenhawZ1h2FtPe)
+Last updated: 18 Nov 2026 (v1.3.1) · Living version: [Claude Docs](https://claude.ai/artifact/TWNi6v9BzenhawZ1h2FtPe)
 
 ## Overview
 
@@ -23,7 +23,7 @@ NEXUS-IoT rebuilds one trustworthy timeline of an incident from the logs and net
 
 ## Current status
 
-Version 1.3.0 is feature-complete for the planned scope: the analyzer, MQTT decoding, detection rules, the HTML report, the web UI with case management, a hash-chained chain-of-custody log with examiner notes, and a Docker testbed with a multi-seed benchmark all work and are tested. The code is standard-library Python 3.10+ with no runtime dependencies; the testbed needs Docker (repository: [Anyacst/nexus-it](https://github.com/Anyacst/nexus-it)).
+Version 1.3.1 is feature-complete for the planned scope: the analyzer, MQTT decoding, detection rules, the HTML report, the web UI with case management, a hash-chained chain-of-custody log with examiner notes, and a Docker testbed with a multi-seed benchmark all work and are tested. The code is standard-library Python 3.10+ with no runtime dependencies; the testbed needs Docker (repository: [Anyacst/nexus-it](https://github.com/Anyacst/nexus-it)).
 
 | Component | Files | State |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ Version 1.3.0 is feature-complete for the planned scope: the analyzer, MQTT deco
 | Continuous integration: unit tests on Python 3.10-3.13, Docker integration on `main` | `.github/workflows/tests.yml` | Done |
 | Synthetic scenarios and scoring (10 cases) | `scenarios.py`, `evaluate.py` | Done |
 | Docker testbed: 5 devices, 7 seeded scenarios, benchmark | `testbed/` | Done |
-| Tests: 122 analyzer tests, 138 testbed tests (10 need Docker) | `tests/`, `testbed/tests/` | All passing (Python 3.10, 3.12, 3.15) |
+| Tests: 126 analyzer tests, 138 testbed tests (10 need Docker) | `tests/`, `testbed/tests/` | All passing (Python 3.10, 3.12, 3.15) |
 
 ## System architecture
 
@@ -139,7 +139,7 @@ The full benchmark ran every scenario with 10 seeds (70 runs of 60 s, about 83 m
 | S4 Clock drift | 10/10 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 / 1.000 |
 | S5 Capture gap | 10/10 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 | 1.000 / 1.000 |
 | S6 Post-collection tampering | 10/10 | 0.983 | 0.978 | 0.989 | 0.989 | 0.994 | 1.000 / 1.000 |
-| S7 Combined | 10/10 | 0.983 | 0.978 | 0.989 | 0.989 | 0.994 | 0.900 / 0.900 |
+| S7 Combined | 10/10 | 0.983 | 0.978 | 0.989 | 0.989 | 0.994 | 0.900 / 0.900 (1.000 / 1.000 rescored with v1.3.1) |
 
 | Alert | Positive runs | Detected | False alarms (of negative runs) |
 | --- | --- | --- | --- |
@@ -151,7 +151,7 @@ The full benchmark ran every scenario with 10 seeds (70 runs of 60 s, about 83 m
 - Across 6,286 ground-truth events the mean event F1 is 0.995. The median absolute time error is 2.4 ms on average and the largest single error is 64 ms, including runs with clock steps of up to 119 s and drift of up to 20,000 ppm.
 - Every tampered run raised a tamper alert and every clock-fault run a clock alert, with no false alarms on the 50 and 40 runs without those faults. This includes the 14 runs where a device clock was set backwards, which versions before the backward-step model misread as tampering.
 - The only event errors come from the tampering itself, exactly as in the synthetic cases: each S6/S7 run has two false positives (the fabricated line and the edited line's new claim) and one miss (the event the edited line replaced). Completeness below 1.0 is the deleted line.
-- S7 seed 1 scores 0 for gap precision and recall, but the analyzer did find the deletion. The deleted line was the last one in `motion-sensor.jsonl`, so no later sequence number exposes it. The analyzer reported it instead as an Unknown gap ("Device log record for motion-sensor-00012 is absent; gateway recorded 'motion_detected'") and as a validation issue. The scorer only credits gaps that carry a missing sequence range, so this run counts as a miss. The scorer was not changed after seeing the result.
+- S7 seed 1 scores 0 for gap precision and recall, but the analyzer did find the deletion. The deleted line was the last one in `motion-sensor.jsonl`, so no later sequence number exposes it. The analyzer reported it instead as an Unknown gap ("Device log record for motion-sensor-00012 is absent; gateway recorded 'motion_detected'") and as a validation issue. The v1.3.0 scorer only credited gaps that carry a missing sequence range, so this run counted as a miss. v1.3.1 fixes the scorer: a missing-log gap is placed at the deleted event's sequence number, and one that names an event the device should not have logged counts as a false gap. Rescoring the same 70 saved cases (no new runs) changes only this run, to 1.000 / 1.000, and leaves the synthetic results unchanged. `metrics.md` keeps the scores as recorded by the v1.3.0 run.
 - Analysis takes about 0.05 s per case (about 90 events from five devices plus a capture).
 
 These results show the tool behaves as designed on this testbed. They are not a measure of real-world accuracy: the testbed was built alongside the analyzer, containers share the host clock, clock faults are simulated in software, and each fault family is fixed.

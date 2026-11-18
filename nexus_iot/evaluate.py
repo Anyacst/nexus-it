@@ -92,12 +92,28 @@ def score_case(evdir: Path, truth: dict, outdir: Path, case: str, title: str) ->
                 if isinstance(sequence, int):
                     expected_gap_positions.setdefault(filename, set()).add(sequence)
     predicted_ranges = {}
+    unplaced_gaps = 0
     for gap in report["timeline"]:
+        if gap.get("label") != "Unknown gap":
+            continue
         rng = gap.get("missing_sequence_range")
         source = gap.get("source_id")
-        if gap.get("label") == "Unknown gap" and source and isinstance(rng, list) and len(rng) == 2:
+        if source and isinstance(rng, list) and len(rng) == 2:
             predicted_ranges.setdefault(Path(source).name, []).append((int(rng[0]), int(rng[1])))
-    gap_tp = gap_predicted = gap_expected = 0
+            continue
+        # A gateway record with no device log line (e.g. the last line of a log deleted) names
+        # the device and event ID rather than a sequence range; place it at that event's sequence.
+        peer, marker, event_id = str(gap.get("event_id", "")).partition(":missing-log:")
+        if not marker:
+            continue
+        filename = f"{peer}.jsonl"
+        sequence = truth_by_id.get(event_id, {}).get("source_sequences", {}).get(filename)
+        if isinstance(sequence, int):
+            predicted_ranges.setdefault(filename, []).append((sequence, sequence))
+        else:
+            unplaced_gaps += 1  # names an event the device log should not have: a false gap
+    gap_tp = gap_expected = 0
+    gap_predicted = unplaced_gaps
     for source, ranges in predicted_ranges.items():
         merged = []
         for start, end in sorted(ranges):
