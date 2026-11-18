@@ -9,6 +9,8 @@ from .clock import _event_time
 
 
 NETWORK_EVENTS = {"network_packet", "unsupported_link_packet"}
+# Packet timestamps from one capture can be reordered by a few microseconds; larger regressions are reported.
+CAPTURE_REORDER_TOLERANCE_SECONDS = 0.01
 
 
 def _is_network_observation(e: dict) -> bool:
@@ -301,7 +303,12 @@ def validate(events: list[dict], errors: list[str], config: dict) -> list[str]:
     for source, rows in by_source.items():
         ordered = sorted(rows, key=lambda e:e["record"])
         ts = [e["timestamp"] for e in ordered]
-        if any(b < a for a, b in zip(ts, ts[1:])):
+        regressions = [a - b for a, b in zip(ts, ts[1:]) if b < a]
+        is_capture = source.lower().endswith((".pcap", ".pcapng"))
+        if regressions and is_capture and max(regressions) <= CAPTURE_REORDER_TOLERANCE_SECONDS:
+            issues.append(f"{source}: {len(regressions)} packet timestamp(s) out of order by at most "
+                          f"{max(regressions) * 1e6:.0f} µs; normal capture jitter, not treated as an anomaly")
+        elif regressions:
             issues.append(f"{source}: timestamps move backwards in file order")
         ids = [e["event_id"] for e in ordered if e["event_id"]]
         duplicates = sorted(x for x, n in Counter(ids).items() if n > 1)

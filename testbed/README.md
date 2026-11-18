@@ -102,5 +102,6 @@ NEXUS_DOCKER_TESTS=1 python3 -m unittest testbed.tests.test_integration_docker -
 - Telemetry is synthetic; a run is evidence of tool behaviour on this testbed, not on real hardware.
 - A few seeds give a rough spread, not a confidence interval; Docker timing (disconnect detection,
   reconnect delay) adds run-to-run variance the seed does not control.
-- Clock steps can be negative (clock set back). Backward timestamps may also be read as tampering,
-  which the benchmark then counts as a tamper false positive.
+- Clock steps can be negative (clock set back). NEXUS-IoT models one backward step and reports it as a
+  clock change; a backward jump it cannot explain is still read as possible tampering, which the
+  benchmark then counts as a tamper false positive.

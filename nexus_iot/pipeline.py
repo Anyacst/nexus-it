@@ -30,6 +30,7 @@ from .clock import (  # noqa: F401  re-exported for existing importers
     MAX_CLOCK_DRIFT_PPM,
     MAX_CLOCK_RESIDUAL_SECONDS,
     _offset_estimates,
+    explain_backward_steps,
     _event_time,
 )
 from .timeline import (  # noqa: F401  re-exported for existing importers
@@ -88,6 +89,7 @@ def analyze(evidence_dir: Path, output_dir: Path, tolerance_seconds: float=0.05,
     if not manifest:
         issues.append("No supported evidence files found (.jsonl, .pcap, .pcapng).")
     offsets = _offset_estimates(events, issues, tolerance_seconds, max_clock_drift_ppm, max_clock_residual_seconds)
+    issues = explain_backward_steps(events, offsets, issues)
     capture_links = _capture_correlations(events, config, offsets, issues)
     timeline = _timeline(events, offsets, issues, tolerance_seconds, capture_links)
     result = {"schema_version":VERSION, "created_at":utc_now(), "evidence_directory":str(evidence_dir), "evidence_record_count":len(events),

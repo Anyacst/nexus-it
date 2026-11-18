@@ -73,8 +73,9 @@ LIMITS: tuple[str, ...] = (
     "Seeds vary fault parameters, device jitter and values; the seven fault families are fixed and only S7 combines faults.",
     "Ground truth for delivery comes from the pre-tamper gateway log, so a missed source row means one the gateway "
     "actually logged. Docker timing (disconnect detection, reconnect delay) adds variance the seed does not control.",
-    "Clock steps may be negative (clock set back). Backward device timestamps can also be read as tampering; "
-    "such an alert counts as a tamper false positive here.",
+    "Clock steps may be negative (clock set back). The analyzer models a single backward step and reports it as a "
+    "clock change; a backward jump it cannot explain is still read as possible tampering and counts as a tamper "
+    "false positive here.",
 )
 
 ScoreFn = Callable[[Path, dict, Path, str, str], dict]
