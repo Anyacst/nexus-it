@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from .capture import CaptureError, packets
+from .mqtt import DEFAULT_PORTS as DEFAULT_MQTT_PORTS, mqtt_messages
 
 SUPPORTED = {".jsonl", ".pcap", ".pcapng"}
 VERSION = "1.0.0"
@@ -126,7 +127,107 @@ def _normalise_json_rows(path: Path, root: Path, errors: list[str]) -> list[dict
     return out
 
 
-def _load_evidence(root: Path, errors: list[str]) -> list[dict]:
+NETWORK_EVENTS = {"network_packet", "unsupported_link_packet"}
+MQTT_CONTROL_EVENTS = {"CONNECT": "mqtt_connect", "DISCONNECT": "mqtt_disconnect", "SUBSCRIBE": "mqtt_subscribe"}
+
+
+def _is_network_observation(e: dict) -> bool:
+    """Capture rows that describe traffic (packet summaries, MQTT session packets), not device event claims."""
+    return e["event"] in NETWORK_EVENTS or bool(e.get("mqtt_control"))
+
+
+def _device_ip_map(config: dict) -> dict[str, set[str]]:
+    """devices.json device_ips as {device: {ip, ...}}; malformed entries are ignored."""
+    ips = config.get("device_ips", {})
+    if not isinstance(ips, dict):
+        return {}
+    mapping = {}
+    for device, values in ips.items():
+        vals = [values] if isinstance(values, str) else values if isinstance(values, list) else []
+        mapping[str(device)] = {str(v) for v in vals}
+    return mapping
+
+
+def _mqtt_ports(config: dict, errors: list[str]) -> set[int]:
+    """Broker ports from devices.json ``mqtt_ports`` (default 1883)."""
+    value = config.get("mqtt_ports")
+    if value is None:
+        return set(DEFAULT_MQTT_PORTS)
+    if (isinstance(value, list) and value and
+            all(isinstance(p, int) and not isinstance(p, bool) and 0 < p <= 65535 for p in value)):
+        return set(value)
+    errors.append("devices.json: mqtt_ports must be a non-empty list of TCP port numbers; using the default 1883")
+    return set(DEFAULT_MQTT_PORTS)
+
+
+def mqtt_rows(path: Path, root: Path, config: dict, errors: list[str]) -> list[dict]:
+    """Turn decoded MQTT traffic in one capture into evidence rows.
+
+    A client-to-broker PUBLISH whose JSON payload names ``event_id``, ``event`` and ``device``
+    becomes a gateway-clock event row (``source_id`` = the capture file, ``peer`` = payload
+    device). Broker-to-subscriber copies are skipped so one publish is counted once.
+    CONNECT, DISCONNECT and SUBSCRIBE become ``mqtt_*`` network-observation rows. Decoder
+    problems, topic/client/IP mismatches, and unacknowledged QoS 1/2 publishes are appended to
+    ``errors`` as validation findings.
+    """
+    rel = path.relative_to(root).as_posix()
+    messages, findings = mqtt_messages(path, _mqtt_ports(config, errors))
+    errors.extend(findings)
+    ip_map = _device_ip_map(config)
+    rows: list[dict] = []
+    seen_publishes: set[tuple[str, str]] = set()
+    unacknowledged: list[str] = []
+    for index, message in enumerate(messages, 1):
+        kind = message["type"]
+        if message["direction"] != "client_to_broker":
+            continue
+        flow = {k: message[k] for k in ("source_ip", "source_port", "destination_ip", "destination_port")}
+        base = {"timestamp": message["timestamp"], "raw_timestamp": message["timestamp"], "device": "gateway",
+                "source_file": rel, "source_id": rel, "record": message["packet"], "sequence": None,
+                "capture_derived": True, "mqtt_type": kind, "mqtt_index": index}
+        where = f"{rel} packet {message['packet']}"
+        if kind in MQTT_CONTROL_EVENTS:
+            endpoints = {message["source_ip"], message["destination_ip"]}
+            details = {k: message[k] for k in ("client_id", "packet_id", "topics", "keep_alive", "clean_session",
+                                               "protocol_level", "username") if message.get(k) is not None}
+            rows.append({**base, **flow, "event": MQTT_CONTROL_EVENTS[kind], "event_id": "", "peer": "",
+                         "protocol": "tcp", "mqtt_control": True, "mqtt": {"type": kind, **details},
+                         "mapped_devices": sorted(d for d, addresses in ip_map.items() if endpoints & addresses),
+                         "metadata": {"client_id": message.get("client_id"), **flow}})
+            continue
+        if kind != "PUBLISH":
+            continue
+        payload = message.get("payload") or {}
+        event_id, event, device = payload.get("event_id"), payload.get("event"), payload.get("device")
+        topic = message["topic"]
+        if not all(isinstance(x, str) and x.strip() for x in (event_id, event, device)):
+            errors.append(f"{where}: MQTT PUBLISH on topic '{topic}' has no JSON event_id/event/device payload; not used as event evidence")
+            continue
+        event_id, event, device = event_id.strip(), event.strip(), device.strip()
+        client_id = message.get("client_id")
+        if message["acknowledged"] is False:
+            unacknowledged.append(event_id)
+            continue
+        if message["dup"] and (client_id or message["source_ip"], event_id) in seen_publishes:
+            continue  # QoS redelivery of a publish already recorded from this client.
+        seen_publishes.add((client_id or message["source_ip"], event_id))
+        if topic != f"nexus/{device}/{event}":
+            errors.append(f"{where}: MQTT topic mismatch for {event_id}: topic '{topic}' but payload names device '{device}' and event '{event}' (expected 'nexus/{device}/{event}')")
+        if client_id is not None and client_id != device:
+            errors.append(f"{where}: MQTT client id '{client_id}' published {event_id} for payload device '{device}'")
+        if device in ip_map and message["source_ip"] not in ip_map[device]:
+            errors.append(f"{where}: MQTT PUBLISH {event_id} for '{device}' came from {message['source_ip']}, which devices.json device_ips does not list for that device")
+        rows.append({**base, "event": event, "event_id": event_id, "peer": device,
+                     "metadata": {"topic": topic, "client_id": client_id, "mqtt_packet_id": message.get("packet_id"),
+                                  "device_timestamp": payload.get("timestamp"), "qos": message["qos"], **flow}})
+    if unacknowledged:
+        sample = ", ".join(unacknowledged[:20]) + (" (more omitted)" if len(unacknowledged) > 20 else "")
+        errors.append(f"{rel}: {len(unacknowledged)} MQTT PUBLISH message(s) were seen on the wire but not acknowledged by the broker within the capture ({sample}); "
+                      "they were not used as event evidence because broker delivery and timing are unproven")
+    return rows
+
+
+def _load_evidence(root: Path, errors: list[str], config: dict | None = None) -> list[dict]:
     out = []
     for path in sorted(p for p in root.rglob("*") if p.is_file() and p.suffix.lower() == ".jsonl"):
         out.extend(_normalise_json_rows(path, root, errors))
@@ -138,10 +239,13 @@ def _load_evidence(root: Path, errors: list[str]) -> list[dict]:
                 out.append(packet)
         except (OSError, CaptureError) as e:
             errors.append(f"{path.name}: capture parse failed ({e})")
+        out.extend(mqtt_rows(path, root, config or {}, errors))
     return out
 
 
 def _sequence_number(e: dict) -> int | None:
+    # Capture-derived rows interleave several devices' IDs; they carry no per-source sequence.
+    if e.get("capture_derived"): return None
     val = e.get("sequence")
     if val is not None:
         if isinstance(val,bool): return None
@@ -227,6 +331,7 @@ def _event_time(e: dict, offsets: dict[str,dict], tolerance: float) -> tuple[flo
 
 
 def _event_key(e: dict) -> str:
+    if e.get("mqtt_control"): return f"{e['source_id']}#mqtt-{e['mqtt_index']}"
     return e["event_id"] or f"{e['source_id']}#record-{e['record']}"
 
 
@@ -293,10 +398,10 @@ def _timeline(events: list[dict], offsets: dict[str, dict], issues: list[str], t
               capture_links: dict[str,list[dict]]|None=None) -> list[dict]:
     capture_links=capture_links or {}
     groups: dict[str, list[dict]] = defaultdict(list)
-    for e in events: groups[_event_key(e)].append(e)
+    for e in events:
+        if not _is_network_observation(e): groups[_event_key(e)].append(e)
     result = []
     for key, rows in groups.items():
-        if rows[0]["event"] in {"network_packet", "unsupported_link_packet"}: continue
         names = sorted(set(r["event"] for r in rows))
         linked=capture_links.get(key,[])
         unique_sources = sorted(set([r["source_id"] for r in rows]+[x["source_id"] for x in linked]))
@@ -321,7 +426,7 @@ def _timeline(events: list[dict], offsets: dict[str, dict], issues: list[str], t
         event_name = names[0] if len(names) == 1 else "Conflicting claims: " + " / ".join(names)
         result.append({"timestamp": timestamp, "time_range": [lo,hi] if lo is not None else None, "time_basis":time_basis,"event": event_name,
             "device_or_source": ", ".join(sorted(set(str(r["device"]) for r in rows))), "event_id": key,
-            "label": label, "supporting_evidence": [f"{r['source_file']} record {r['record']} ({r['event']})" for r in rows]+[x["display"] for x in linked],
+            "label": label, "supporting_evidence": [_evidence_text(r) for r in rows]+[x["display"] for x in linked],
             "independent_source_count": len(agreed_sources), "uncertainty_seconds": uncertainty,
             "confidence_or_uncertainty": (f"{len(agreed_sources)} agreeing source(s); time range ±{uncertainty:.3f}s plus source spread" if uncertainty is not None else f"{len(agreed_sources)} agreeing source(s); clocks are not calibrated, so no UTC uncertainty bound is available"),
             "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity.",
@@ -329,7 +434,7 @@ def _timeline(events: list[dict], offsets: dict[str, dict], issues: list[str], t
     # Explicitly unknown intervals inferred from internal sequence metadata/IDs.
     by_device: dict[tuple[str,str], list[dict]] = defaultdict(list)
     for e in events:
-        if e["event"] not in {"network_packet","unsupported_link_packet"}: by_device[(str(e["device"]),str(e["source_id"]))].append(e)
+        if not _is_network_observation(e): by_device[(str(e["device"]),str(e["source_id"]))].append(e)
     for (device,source_id), rows in by_device.items():
         seq_map = {}
         for e in rows:
@@ -352,13 +457,19 @@ def _timeline(events: list[dict], offsets: dict[str, dict], issues: list[str], t
     ids_by_device: dict[str,set[str]]=defaultdict(set)
     for e in events:
         if e["device"]!="gateway" and e["event_id"]: ids_by_device[str(e["device"])].add(e["event_id"])
+    absent_logs: dict[tuple[str,str],list[dict]]=defaultdict(list)
     for g in events:
         if g["device"]!="gateway" or not g["event_id"] or not g.get("peer"): continue
         if g["event_id"] in ids_by_device.get(g["peer"],set()): continue
-        result.append({"timestamp":g["timestamp"],"time_range":[g["timestamp"]-tolerance,g["timestamp"]+tolerance],
-            "event":f"Device log record for {g['event_id']} is absent; gateway recorded '{g['event']}'",
-            "device_or_source":g["peer"],"event_id":f"{g['peer']}:missing-log:{g['event_id']}","label":"Unknown gap","time_basis":"gateway-clock-assumed",
-            "supporting_evidence":[f"{g['source_file']} record {g['record']} ({g['event']})",f"no matching event ID in device log for {g['peer']}"],
+        absent_logs[(g["peer"],g["event_id"])].append(g)
+    for (peer,event_id),witnesses in absent_logs.items():
+        # Several gateway-side witnesses (gateway log, capture) of one ID produce one gap row.
+        g=witnesses[0];gateway_time=statistics.median(w["timestamp"] for w in witnesses)
+        recorded=" / ".join(sorted({w["event"] for w in witnesses}))
+        result.append({"timestamp":gateway_time,"time_range":[gateway_time-tolerance,gateway_time+tolerance],
+            "event":f"Device log record for {event_id} is absent; gateway recorded '{recorded}'",
+            "device_or_source":peer,"event_id":f"{peer}:missing-log:{event_id}","label":"Unknown gap","time_basis":"gateway-clock-assumed",
+            "supporting_evidence":[_evidence_text(w) for w in witnesses]+[f"no matching event ID in device log for {peer}"],
             "independent_source_count":0,"uncertainty_seconds":tolerance,
             "confidence_or_uncertainty":"Gateway record exists; absence from the supplied device file is observable, but the cause is unknown.",
             "limitations":"Could reflect collection loss, device behavior, ID mismatch, gateway fabrication, or deletion. Absence alone does not prove tampering."})
@@ -395,7 +506,9 @@ def _timeline(events: list[dict], offsets: dict[str, dict], issues: list[str], t
                     "confidence_or_uncertainty":f"Low-confidence periodicity hypothesis; estimated period {period:.3f}s; display window includes ±25% of period.",
                     "limitations":"Absence may be normal silence or an unobserved behavior. This hypothesis is never counted as a recorded fact."})
     for e in events:
-        if e["event"] in {"network_packet","unsupported_link_packet"}:
+        if e.get("mqtt_control"):
+            result.append(_mqtt_observation(e))
+        elif e["event"] in NETWORK_EVENTS:
             packet_range=[e.get("timestamp_start",e["timestamp"]),e.get("timestamp_end",e["timestamp"])]
             result.append({"timestamp":e["timestamp"],"time_range":packet_range,"event":e["event"],
                 "device_or_source":e["source_file"],"event_id":f"{e['source_file']}:packet-{e['record']}","label":"Single-source","time_basis":"capture-clock-as-recorded",
@@ -407,6 +520,35 @@ def _timeline(events: list[dict], offsets: dict[str, dict], issues: list[str], t
     for e in result:
         e.pop("_observed_times",None);e.pop("_sources",None)
     return result
+
+
+def _evidence_text(r: dict) -> str:
+    """One supporting-evidence line for an evidence row."""
+    if r.get("mqtt_type") == "PUBLISH":
+        meta = r.get("metadata", {})
+        return (f"{r['source_file']} packet {r['record']}: MQTT PUBLISH topic {meta.get('topic')} from client "
+                f"{meta.get('client_id') or 'unknown'} {meta.get('source_ip')}:{meta.get('source_port')} ({r['event']})")
+    return f"{r['source_file']} record {r['record']} ({r['event']})"
+
+
+def _mqtt_observation(e: dict) -> dict:
+    """Timeline row for an MQTT CONNECT/DISCONNECT/SUBSCRIBE seen in a capture."""
+    details = e.get("mqtt", {})
+    extra = f" client_id={details['client_id']}" if details.get("client_id") else ""
+    if details.get("topics"):
+        extra += " topics=" + ",".join(t["topic"] for t in details["topics"])
+    flow = f"{e.get('source_ip')}:{e.get('source_port')} -> {e.get('destination_ip')}:{e.get('destination_port')}"
+    return {"timestamp": e["timestamp"], "time_range": [e["timestamp"], e["timestamp"]], "event": e["event"],
+            "device_or_source": e["source_file"], "event_id": f"{e['source_file']}:mqtt-{e['mqtt_index']}",
+            "label": "Single-source", "time_basis": "capture-clock-as-recorded",
+            "supporting_evidence": [f"{e['source_file']} packet {e['record']}: MQTT {details.get('type', '')}{extra} {flow} tcp; "
+                                    f"mapped device(s): {', '.join(e.get('mapped_devices', [])) or 'unknown'}"],
+            "independent_source_count": 1, "uncertainty_seconds": 0.0,
+            "confidence_or_uncertainty": "Capture timestamp as recorded; capture clock accuracy is not independently established.",
+            "network_summary": {"source_ip": e.get("source_ip"), "destination_ip": e.get("destination_ip"), "protocol": "tcp",
+                                "source_port": e.get("source_port"), "destination_port": e.get("destination_port"),
+                                "mapped_devices": e.get("mapped_devices", []), "mqtt": details},
+            "limitations": "MQTT session packet decoded from the capture; it shows client/broker session activity, not a device event."}
 
 
 def _write_reports(result: dict, output: Path) -> None:
@@ -529,7 +671,7 @@ def analyze(evidence_dir: Path, output_dir: Path, tolerance_seconds: float=0.05,
         manifest,hash_findings=acquire(evidence_dir,snapshot_root,previous if isinstance(previous,list) else [])
         errors=[]; config=_read_devices_config(snapshot_root)
         if config.get("_config_error"): errors.append(config["_config_error"])
-        events=_load_evidence(snapshot_root,errors)
+        events=_load_evidence(snapshot_root,errors,config)
     issues=hash_findings+validate(events,errors,config)
     if not manifest: issues.append("No supported evidence files found (.jsonl, .pcap, .pcapng).")
     offsets=_offset_estimates(events,issues,tolerance_seconds,max_clock_drift_ppm,max_clock_residual_seconds)
@@ -541,7 +683,8 @@ def analyze(evidence_dir: Path, output_dir: Path, tolerance_seconds: float=0.05,
         "limitations":["A SHA-256 hash records bytes seen during this run; it cannot establish provenance or integrity before acquisition.",
             "Prior-manifest hash comparisons detect byte changes only when a previous manifest exists and has not itself been replaced.",
             "Clock offsets require shared event IDs in the gateway and device evidence; estimates describe the observed anchors and do not prove gateway time is correct.",
-            "PCAP and PCAPNG support is limited to classic formats and Ethernet, raw IP, or Linux cooked headers; packet payloads are not parsed. Repeated header flows are coalesced into one-second summaries.",
+            "PCAP and PCAPNG support is limited to classic formats and Ethernet, raw IP, or Linux cooked headers. Only plain-text MQTT 3.1.1 over TCP on the configured broker ports is decoded from payloads; other payloads are not parsed. Repeated header flows are coalesced into one-second summaries.",
+            "An MQTT PUBLISH in a capture is a gateway-clock witness of the payload the device sent; capture time is network delivery time, and payload content is the device's own claim.",
             "Sequence gaps and silence can reflect ordinary loss or device behavior; they are not proof of deletion or an attack.",
             "Periodic-event hypotheses are low-confidence and explicitly labeled Inferred; corroboration rules cannot establish authenticity."]}
     result["processing_seconds"]=round(time.perf_counter()-start,6)

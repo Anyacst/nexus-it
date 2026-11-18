@@ -1,6 +1,8 @@
 """Passive, dependency-free readers for classic PCAP and PCAPNG captures.
 
-Only packet headers are decoded. Payload bytes are never retained or printed.
+``packets()`` decodes only packet headers; its records never retain or print payload bytes.
+``tcp_segments()`` is a separate reader that returns TCP payload bytes for protocol decoders
+such as ``mqtt.py``.
 Supported link layers: Ethernet, raw IP, and Linux cooked v1/v2.
 """
 from __future__ import annotations
@@ -8,7 +10,7 @@ from __future__ import annotations
 import ipaddress
 import struct
 from pathlib import Path
-from typing import BinaryIO, Iterator
+from typing import BinaryIO, Callable, Iterator
 
 
 class CaptureError(ValueError):
@@ -43,7 +45,8 @@ def _aggregate(source: Iterator[dict], seconds: float) -> Iterator[dict]:
     yield from groups.values()
 
 
-def _pcap(stream: BinaryIO, filename: str) -> Iterator[dict]:
+def _pcap(stream: BinaryIO, filename: str, decoder: Callable[..., dict | None] | None = None) -> Iterator[dict | None]:
+    decoder = decoder or _decode
     header=stream.read(24)
     if len(header) < 24:
         raise CaptureError("truncated PCAP global header")
@@ -66,10 +69,11 @@ def _pcap(stream: BinaryIO, filename: str) -> Iterator[dict]:
         frame=stream.read(caplen)
         if len(frame)!=caplen: raise CaptureError(f"truncated packet {index+1}")
         index += 1
-        yield _decode(frame, sec + frac/resolution, linktype, filename, index, wirelen)
+        yield decoder(frame, sec + frac/resolution, linktype, filename, index, wirelen)
 
 
-def _pcapng(stream: BinaryIO, filename: str) -> Iterator[dict]:
+def _pcapng(stream: BinaryIO, filename: str, decoder: Callable[..., dict | None] | None = None) -> Iterator[dict | None]:
+    decoder = decoder or _decode
     endian, interfaces, index = None, [], 0
     while True:
         offset=stream.tell();block_head=stream.read(8)
@@ -120,7 +124,7 @@ def _pcapng(stream: BinaryIO, filename: str) -> Iterator[dict]:
             if 20 + caplen > len(block): raise CaptureError("truncated PCAPNG packet data")
             linktype, resolution, timestamp_offset = interfaces[iid]; index += 1
             ticks = (high << 32) | low
-            yield _decode(block[20:20+caplen], ticks/resolution+timestamp_offset, linktype, filename, index, wirelen)
+            yield decoder(block[20:20+caplen], ticks/resolution+timestamp_offset, linktype, filename, index, wirelen)
         elif block_type == 2:  # Obsolete Packet Block
             if len(block)<20: raise CaptureError("truncated PCAPNG packet block")
             iid,_,high,low,caplen,wirelen=struct.unpack(endian+"HHIIII",block[:20])
@@ -128,12 +132,13 @@ def _pcapng(stream: BinaryIO, filename: str) -> Iterator[dict]:
             if 20+caplen>len(block): raise CaptureError("truncated PCAPNG packet data")
             linktype,resolution,timestamp_offset=interfaces[iid];index+=1
             ticks=(high<<32)|low
-            yield _decode(block[20:20+caplen],ticks/resolution+timestamp_offset,linktype,filename,index,wirelen)
+            yield decoder(block[20:20+caplen],ticks/resolution+timestamp_offset,linktype,filename,index,wirelen)
         elif block_type == 3:  # Simple Packet Block has no timestamp.
             raise CaptureError("PCAPNG Simple Packet Blocks have no timestamp and cannot be placed on the incident timeline")
 
 
-def _decode(frame: bytes, timestamp: float, linktype: int, filename: str, index: int, wirelen: int) -> dict:
+def _link_layer(frame: bytes, linktype: int, index: int) -> tuple[int | None, int] | None:
+    """Return (ethertype, network-layer offset), or None for an unsupported link type."""
     pos, ethertype = 0, None
     if linktype == 1:  # Ethernet
         if len(frame) < 14: raise CaptureError(f"packet {index}: truncated Ethernet header")
@@ -151,9 +156,18 @@ def _decode(frame: bytes, timestamp: float, linktype: int, filename: str, index:
         if len(frame)<20: raise CaptureError(f"packet {index}: truncated cooked-v2 header")
         ethertype=int.from_bytes(frame[:2],"big");pos=20
     else:
-        return {"timestamp": timestamp, "event": "unsupported_link_packet", "capture": filename,
-                "packet": index, "linktype": linktype, "wire_bytes": wirelen}
-    source = destination = "?"; proto = "other"; sport = dport = None;can_parse_transport=True;is_fragment=False
+        return None
+    return ethertype, pos
+
+
+def _ip_layer(frame: bytes, pos: int, ethertype: int | None, index: int) -> dict:
+    """Decode the IPv4/IPv6 header at pos.
+
+    Returns source/destination text, transport protocol number, transport offset ``l4``,
+    ``ip_end`` (end of the IP datagram according to its length field, which excludes
+    link-layer padding), and fragment flags.
+    """
+    source = destination = "?"; can_parse_transport=True; is_fragment=False
     if ethertype == 0x0800:
         if len(frame) < pos+20: raise CaptureError(f"packet {index}: truncated IPv4 header")
         ihl = (frame[pos] & 15)*4
@@ -163,10 +177,15 @@ def _decode(frame: bytes, timestamp: float, linktype: int, filename: str, index:
         fragment_offset=frag&0x1fff;is_fragment=bool(fragment_offset or frag&0x2000)
         can_parse_transport=fragment_offset==0
         proto_num = frame[pos+9]; l4 = pos+ihl
+        total_length = struct.unpack(">H",frame[pos+2:pos+4])[0]
+        # A zero total length appears in captures of segmentation-offloaded packets.
+        ip_end = pos+total_length if total_length else len(frame)
     elif ethertype == 0x86DD:
         if len(frame) < pos+40: raise CaptureError(f"packet {index}: truncated IPv6 header")
         source = str(ipaddress.ip_address(frame[pos+8:pos+24])); destination = str(ipaddress.ip_address(frame[pos+24:pos+40]))
         proto_num = frame[pos+6]; l4 = pos+40
+        payload_length = struct.unpack(">H",frame[pos+4:pos+6])[0]
+        ip_end = pos+40+payload_length if payload_length else len(frame)
         # Walk common IPv6 extension headers to find the transport header.
         while proto_num in (0,43,44,51,60,135):
             if proto_num==44:
@@ -182,11 +201,69 @@ def _decode(frame: bytes, timestamp: float, linktype: int, filename: str, index:
                 if len(frame)<l4+ext_len: raise CaptureError(f"packet {index}: invalid IPv6 extension length")
             proto_num=next_proto;l4+=ext_len
     else:
-        proto_num, l4 = -1, len(frame)
+        proto_num, l4, ip_end = -1, len(frame), len(frame)
+    return {"source": source, "destination": destination, "proto_num": proto_num, "l4": l4, "ip_end": ip_end,
+            "can_parse_transport": can_parse_transport, "is_fragment": is_fragment}
+
+
+def _decode(frame: bytes, timestamp: float, linktype: int, filename: str, index: int, wirelen: int) -> dict:
+    link = _link_layer(frame, linktype, index)
+    if link is None:
+        return {"timestamp": timestamp, "event": "unsupported_link_packet", "capture": filename,
+                "packet": index, "linktype": linktype, "wire_bytes": wirelen}
+    ip = _ip_layer(frame, link[1], link[0], index)
+    source, destination, proto_num, l4 = ip["source"], ip["destination"], ip["proto_num"], ip["l4"]
+    sport = dport = None
     proto = {6:"tcp", 17:"udp", 1:"icmp", 58:"icmpv6"}.get(proto_num, "other")
-    if can_parse_transport and proto in ("tcp", "udp") and len(frame) >= l4+4:
+    if ip["can_parse_transport"] and proto in ("tcp", "udp") and len(frame) >= l4+4:
         sport, dport = struct.unpack(">HH", frame[l4:l4+4])
     return {"timestamp": timestamp, "event": "network_packet", "capture": filename,
             "packet": index, "source_ip": source, "destination_ip": destination,
             "protocol": proto, "source_port": sport, "destination_port": dport,
-            "wire_bytes": wirelen,"is_fragment":is_fragment}
+            "wire_bytes": wirelen,"is_fragment":ip["is_fragment"]}
+
+
+TCP_FIN = 0x01
+TCP_SYN = 0x02
+TCP_RST = 0x04
+
+
+def tcp_segments(path: Path) -> Iterator[dict]:
+    """Yield one record per captured TCP segment, including its payload bytes.
+
+    This is a separate reader for protocol decoders (see ``mqtt.py``); ``packets()`` still
+    returns header summaries only. Non-TCP packets, unsupported link types, and non-initial
+    IP fragments are skipped. Each record has ``timestamp``, ``packet`` (1-based index in the
+    capture), ``source_ip``, ``source_port``, ``destination_ip``, ``destination_port``,
+    ``seq`` (TCP sequence number), ``flags`` (TCP flag bits), ``payload`` (bytes) and
+    ``truncated`` (True when the capture snap length cut off part of the segment payload).
+    Raises CaptureError for a corrupt capture, like ``packets()``.
+    """
+    with path.open("rb") as stream:
+        magic=stream.read(4);stream.seek(0)
+        reader=_pcapng if magic == b"\x0a\x0d\x0d\x0a" else _pcap
+        for segment in reader(stream,path.name,_decode_tcp_segment):
+            if segment is not None: yield segment
+
+
+def _decode_tcp_segment(frame: bytes, timestamp: float, linktype: int, filename: str, index: int, wirelen: int) -> dict | None:
+    """Decode a frame to a TCP segment record, or None when it is not a parseable TCP segment."""
+    link = _link_layer(frame, linktype, index)
+    if link is None:
+        return None
+    ip = _ip_layer(frame, link[1], link[0], index)
+    if ip["proto_num"] != 6 or not ip["can_parse_transport"] or ip["is_fragment"]:
+        return None
+    l4 = ip["l4"]
+    if len(frame) < l4 + 20:
+        return None
+    sport, dport, seq, _ack, offset_flags = struct.unpack(">HHIIH", frame[l4:l4+14])
+    header_len = (offset_flags >> 12) * 4
+    if header_len < 20:
+        return None
+    start = l4 + header_len
+    end = ip["ip_end"] if ip["ip_end"] >= start else start
+    return {"timestamp": timestamp, "packet": index, "capture": filename,
+            "source_ip": ip["source"], "destination_ip": ip["destination"],
+            "source_port": sport, "destination_port": dport, "seq": seq, "flags": offset_flags & 0x3F,
+            "payload": bytes(frame[start:end]), "truncated": end > len(frame)}

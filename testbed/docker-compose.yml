@@ -1,0 +1,166 @@
+# NEXUS-IoT Docker testbed (benign telemetry simulation, closed network).
+# See testbed/CONTRACT.md. Required env: RUN_DIR (absolute path with subdirs
+# logs, truth, capture, broker); without it, outputs go to testbed/runs/_no_run_dir.
+# No ports are published to the host.
+
+name: nexus-tb
+
+x-device: &device
+  build:
+    context: ./device
+  restart: "no"
+  depends_on:
+    broker:
+      condition: service_healthy
+    gateway:
+      condition: service_started
+  volumes:
+    - ${RUN_DIR:-./runs/_no_run_dir}/logs:/logs
+    - ${RUN_DIR:-./runs/_no_run_dir}/truth:/truth
+
+services:
+  broker:
+    image: eclipse-mosquitto:2.0.18
+    container_name: nexus-tb-broker
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ${RUN_DIR:-./runs/_no_run_dir}/broker:/mosquitto/log
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 2s
+    networks:
+      iotnet:
+        ipv4_address: 172.30.0.10
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: nexus-tb-gateway
+    restart: "no"
+    depends_on:
+      broker:
+        condition: service_healthy
+    environment:
+      BROKER_HOST: broker
+      BROKER_PORT: "1883"
+    volumes:
+      - ${RUN_DIR:-./runs/_no_run_dir}/logs:/logs
+    networks:
+      iotnet:
+        ipv4_address: 172.30.0.11
+
+  capture:
+    build:
+      context: ./capture
+    container_name: nexus-tb-capture
+    network_mode: "service:broker"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    depends_on:
+      broker:
+        condition: service_healthy
+    command: ["sh", "-c", "exec tcpdump -i eth0 -U -n -w /capture/gateway-$$(date +%s%N).pcap tcp port 1883"]
+    volumes:
+      - ${RUN_DIR:-./runs/_no_run_dir}/capture:/capture
+
+  door-sensor:
+    <<: *device
+    container_name: nexus-tb-door-sensor
+    environment:
+      DEVICE_ID: door-sensor
+      BROKER_HOST: broker
+      BROKER_PORT: "1883"
+      DURATION_S: ${DURATION_S:-40}
+      SEED: ${SEED:-7}
+      START_AT: ${START_AT:-0}
+      CLOCK_OFFSET_S: ${DOOR_CLOCK_OFFSET_S:-0}
+      CLOCK_DRIFT_PPM: ${DOOR_CLOCK_DRIFT_PPM:-0}
+      CLOCK_STEP_AT_S: ${DOOR_CLOCK_STEP_AT_S:--1}
+      CLOCK_STEP_S: ${DOOR_CLOCK_STEP_S:-0}
+    networks:
+      iotnet:
+        ipv4_address: 172.30.0.21
+
+  temp-sensor:
+    <<: *device
+    container_name: nexus-tb-temp-sensor
+    environment:
+      DEVICE_ID: temp-sensor
+      BROKER_HOST: broker
+      BROKER_PORT: "1883"
+      DURATION_S: ${DURATION_S:-40}
+      SEED: ${SEED:-7}
+      START_AT: ${START_AT:-0}
+      CLOCK_OFFSET_S: ${TEMP_CLOCK_OFFSET_S:-0}
+      CLOCK_DRIFT_PPM: ${TEMP_CLOCK_DRIFT_PPM:-0}
+      CLOCK_STEP_AT_S: ${TEMP_CLOCK_STEP_AT_S:--1}
+      CLOCK_STEP_S: ${TEMP_CLOCK_STEP_S:-0}
+    networks:
+      iotnet:
+        ipv4_address: 172.30.0.22
+
+  smart-plug:
+    <<: *device
+    container_name: nexus-tb-smart-plug
+    environment:
+      DEVICE_ID: smart-plug
+      BROKER_HOST: broker
+      BROKER_PORT: "1883"
+      DURATION_S: ${DURATION_S:-40}
+      SEED: ${SEED:-7}
+      START_AT: ${START_AT:-0}
+      CLOCK_OFFSET_S: ${PLUG_CLOCK_OFFSET_S:-0}
+      CLOCK_DRIFT_PPM: ${PLUG_CLOCK_DRIFT_PPM:-0}
+      CLOCK_STEP_AT_S: ${PLUG_CLOCK_STEP_AT_S:--1}
+      CLOCK_STEP_S: ${PLUG_CLOCK_STEP_S:-0}
+    networks:
+      iotnet:
+        ipv4_address: 172.30.0.23
+
+  motion-sensor:
+    <<: *device
+    container_name: nexus-tb-motion-sensor
+    environment:
+      DEVICE_ID: motion-sensor
+      BROKER_HOST: broker
+      BROKER_PORT: "1883"
+      DURATION_S: ${DURATION_S:-40}
+      SEED: ${SEED:-7}
+      START_AT: ${START_AT:-0}
+      CLOCK_OFFSET_S: ${MOTION_CLOCK_OFFSET_S:-0}
+      CLOCK_DRIFT_PPM: ${MOTION_CLOCK_DRIFT_PPM:-0}
+      CLOCK_STEP_AT_S: ${MOTION_CLOCK_STEP_AT_S:--1}
+      CLOCK_STEP_S: ${MOTION_CLOCK_STEP_S:-0}
+    networks:
+      iotnet:
+        ipv4_address: 172.30.0.24
+
+  smart-lock:
+    <<: *device
+    container_name: nexus-tb-smart-lock
+    environment:
+      DEVICE_ID: smart-lock
+      BROKER_HOST: broker
+      BROKER_PORT: "1883"
+      DURATION_S: ${DURATION_S:-40}
+      SEED: ${SEED:-7}
+      START_AT: ${START_AT:-0}
+      CLOCK_OFFSET_S: ${LOCK_CLOCK_OFFSET_S:-0}
+      CLOCK_DRIFT_PPM: ${LOCK_CLOCK_DRIFT_PPM:-0}
+      CLOCK_STEP_AT_S: ${LOCK_CLOCK_STEP_AT_S:--1}
+      CLOCK_STEP_S: ${LOCK_CLOCK_STEP_S:-0}
+    networks:
+      iotnet:
+        ipv4_address: 172.30.0.25
+
+networks:
+  iotnet:
+    name: nexus-iotnet
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
