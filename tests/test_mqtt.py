@@ -434,7 +434,7 @@ EVENTS = [("door-sensor-00001", "boot"), ("door-sensor-00002", "door_open"), ("d
           ("door-sensor-00004", "door_open"), ("door-sensor-00005", "door_close")]
 
 
-def build_case(evidence: Path, devices: dict | None = None) -> None:
+def build_case(evidence: Path, devices: dict | None = None, door_client: str = "door-sensor") -> None:
     """Device log + gateway log + capture for five door-sensor events.
 
     Events 1-3 are published normally and copied to the gateway subscriber; event 4 uses a
@@ -448,7 +448,7 @@ def build_case(evidence: Path, devices: dict | None = None) -> None:
                                          gateway.segment(999.2, connack(), from_client=False),
                                          gateway.segment(999.3, subscribe(1, "nexus/#")),
                                          gateway.segment(999.4, fixed(0x90, b"\x00\x01\x01"), from_client=False)]
-    frames += door.handshake(999.5) + [door.segment(999.6, connect("door-sensor")),
+    frames += door.handshake(999.5) + [door.segment(999.6, connect(door_client)),
                                        door.segment(999.7, connack(), from_client=False)]
     for n, (event_id, event) in enumerate(EVENTS, 1):
         sent = 1000.0 + 2 * n
@@ -547,6 +547,28 @@ class PipelineMQTTTests(unittest.TestCase):
         self.assertEqual(result["false_positive_events"], 0)
         self.assertEqual(result["event_f1"], 1.0)
         self.assertEqual(result["event_label_accuracy"], 1.0)
+
+
+    def test_client_identity_rule_over_decoded_capture(self):
+        rules_path = self.root / "rules.json"
+        rules_path.write_text(json.dumps({"rules": [
+            {"id": "M1", "title": "own id", "type": "mqtt_client", "allowed": ["{device}", "nexus-gateway"]}]}),
+            encoding="utf-8")
+        build_case(self.evidence)
+        report = analyze(self.evidence, self.root / "derived", rules_path=rules_path)
+        row = next(e for e in report["timeline"] if e["event_id"] == "door-sensor-00002")
+        self.assertEqual(row["mqtt_publishers"], [{"client_id": "door-sensor", "device": "door-sensor"}])
+        self.assertNotIn("mqtt_publishers", next(e for e in report["timeline"] if e["event_id"] == "door-sensor-00005"))
+        self.assertEqual(report["rule_findings"], [])
+
+        build_case(self.evidence, door_client="intruder")
+        report = analyze(self.evidence, self.root / "derived2", rules_path=rules_path)
+        flagged = {f["event_ids"][0] for f in report["rule_findings"]}
+        # The CONNECT, three acknowledged publishes plus the mismatched-topic one, and the DISCONNECT.
+        self.assertEqual(len(flagged), 6, report["rule_findings"])
+        self.assertIn("door-sensor-00002", flagged)
+        detail = next(f["detail"] for f in report["rule_findings"] if f["event_ids"] == ["door-sensor-00002"])
+        self.assertIn("client 'intruder' published (device door-sensor)", detail)
 
 
 class RealTestbedCaptureTests(unittest.TestCase):

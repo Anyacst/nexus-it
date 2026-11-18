@@ -1,6 +1,6 @@
 # NEXUS-IoT Project Documentation
 
-Last updated: 18 Nov 2026 (v1.2.0) · Living version: [Claude Docs](https://claude.ai/artifact/TWNi6v9BzenhawZ1h2FtPe)
+Last updated: 18 Nov 2026 (v1.3.0) · Living version: [Claude Docs](https://claude.ai/artifact/TWNi6v9BzenhawZ1h2FtPe)
 
 ## Overview
 
@@ -23,7 +23,7 @@ NEXUS-IoT rebuilds one trustworthy timeline of an incident from the logs and net
 
 ## Current status
 
-Version 1.2.0 is feature-complete for the planned scope: the analyzer, MQTT decoding, detection rules, the HTML report, the web UI with case management, a hash-chained chain-of-custody log with examiner notes, and a Docker testbed with a multi-seed benchmark all work and are tested. The code is standard-library Python 3.10+ with no runtime dependencies; the testbed needs Docker (repository: [Anyacst/nexus-it](https://github.com/Anyacst/nexus-it)).
+Version 1.3.0 is feature-complete for the planned scope: the analyzer, MQTT decoding, detection rules, the HTML report, the web UI with case management, a hash-chained chain-of-custody log with examiner notes, and a Docker testbed with a multi-seed benchmark all work and are tested. The code is standard-library Python 3.10+ with no runtime dependencies; the testbed needs Docker (repository: [Anyacst/nexus-it](https://github.com/Anyacst/nexus-it)).
 
 | Component | Files | State |
 | --- | --- | --- |
@@ -34,14 +34,14 @@ Version 1.2.0 is feature-complete for the planned scope: the analyzer, MQTT deco
 | HMAC manifest signing and verification | `reporting.py` | Done |
 | PCAP / PCAPNG parsing and flow rules | `capture.py` | Done |
 | MQTT 3.1.1 decoding with TCP reassembly (capture as third witness) | `mqtt.py`, `evidence.py` | Done |
-| Detection rules (match, absent-within, sequence, count-within) with example rules | `rules.py`, `rules/` | Done |
+| Detection rules (match, absent-within, sequence, count-within, time-of-day, MQTT client identity) with example rules | `rules.py`, `rules/` | Done |
 | Chain-of-custody log (hash chain, optional HMAC head signature) and examiner notes with retraction | `custody.py` | Done |
 | CLI: `analyze` (`--rules`), `custody`, `note`, `check-rules`, `export-html`, `verify-manifest`, `evaluate`, `serve`, `--version` | `__main__.py` | Done |
 | Local web UI with filters, row drill-down, report download and saved cases (list, re-analyze, delete) | `web.py` | Done |
 | Continuous integration: unit tests on Python 3.10-3.13, Docker integration on `main` | `.github/workflows/tests.yml` | Done |
 | Synthetic scenarios and scoring (10 cases) | `scenarios.py`, `evaluate.py` | Done |
 | Docker testbed: 5 devices, 7 seeded scenarios, benchmark | `testbed/` | Done |
-| Tests: 111 analyzer tests, 138 testbed tests (10 need Docker) | `tests/`, `testbed/tests/` | All passing (Python 3.10, 3.12, 3.15) |
+| Tests: 122 analyzer tests, 138 testbed tests (10 need Docker) | `tests/`, `testbed/tests/` | All passing (Python 3.10, 3.12, 3.15) |
 
 ## System architecture
 
@@ -90,7 +90,7 @@ The planned must-have work is complete. Optional extensions, in order of value:
 - [x] **Detection rules**: JSON rules file (`match`, `absent_within`, `sequence`, `count_within`) evaluated on the corrected timeline, with findings in every report.
 - [x] **Continuous integration**: GitHub Actions running the analyzer and testbed unit tests on every push.
 - [x] **Chain-of-custody log and examiner notes**: an append-only, hash-chained per-case log of every analysis (with evidence and report hashes), note, retraction, export, download and deletion, optionally HMAC-signed; notes attach to timeline rows and are retracted, never edited.
-- [ ] **More rule types**: time-of-day windows ("commands at unusual hours") and rules on MQTT client identity.
+- [x] **More rule types**: `time_of_day` windows in any time zone (IANA names follow daylight saving), with optional weekdays and a note when a row's time range crosses the window edge; `mqtt_client` checks each MQTT client ID against allowed patterns, where `{device}` means the device the message was for.
 - [ ] **Wider protocol coverage**: CoAP or HTTP telemetry, and MQTT 5.
 - [ ] **Real-device validation**: a small physical testbed with independently recorded ground truth.
 
@@ -147,7 +147,7 @@ NEXUS-IoT is narrow by design: it does one job that general tools leave to the e
 | Flags gaps, conflicts and clock anomalies | Yes | No | No | No |
 | Evidence hashing and signed manifest | Yes (SHA-256, HMAC) | No | Hashes in storage metadata | Yes, with case management |
 | Chain-of-custody log | Yes (hash-chained, HMAC-signed head, examiner notes) | No | No | Yes (case database and reports) |
-| Configurable detection rules | Yes (JSON, 4 rule types) | Display filters only | No (analysis plugins) | Keyword and hash-set hits |
+| Configurable detection rules | Yes (JSON, 6 rule types) | Display filters only | No (analysis plugins) | Keyword and hash-set hits |
 | Evaluated against known ground truth | Yes (synthetic + Docker testbed) | n/a | n/a | n/a |
 
 In practice the tools complement each other: Wireshark for deep inspection of a suspicious flow, Plaso or Autopsy for host artifacts, and NEXUS-IoT to reconcile the IoT devices and gateway into one defensible sequence of events.

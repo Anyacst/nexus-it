@@ -116,6 +116,12 @@ def _capture_correlations(events: list[dict], config: dict, offsets: dict[str, d
     return links
 
 
+def _mqtt_publishers(rows: list[dict]) -> list[dict]:
+    """MQTT PUBLISH witnesses of one event as sorted {client_id, device} pairs (client_id None when unknown)."""
+    pairs = {((r.get("metadata") or {}).get("client_id"), str(r.get("peer", ""))) for r in rows if r.get("mqtt_type") == "PUBLISH"}
+    return [{"client_id": c, "device": d} for c, d in sorted(pairs, key=lambda p: (p[0] is None, p[0] or "", p[1]))]
+
+
 def _timeline(events: list[dict], offsets: dict[str, dict], issues: list[str], tolerance: float,
               capture_links: dict[str, list[dict]]|None=None) -> list[dict]:
     """Build labelled timeline rows (Confirmed, Single-source, Inferred, Unknown gap, observations)."""
@@ -162,6 +168,9 @@ def _timeline(events: list[dict], offsets: dict[str, dict], issues: list[str], t
             "confidence_or_uncertainty": (f"{len(agreed_sources)} agreeing source(s); time range ±{uncertainty:.3f}s plus source spread" if uncertainty is not None else f"{len(agreed_sources)} agreeing source(s); clocks are not calibrated, so no UTC uncertainty bound is available"),
             "limitations": "Distinct source IDs and matching event IDs support correlation but do not prove source independence or authenticity.",
             "_observed_times": corrected, "_sources": unique_sources})
+        publishers = _mqtt_publishers(rows)
+        if publishers:
+            result[-1]["mqtt_publishers"] = publishers
     # Explicitly unknown intervals inferred from internal sequence metadata/IDs.
     by_device: dict[tuple[str, str], list[dict]] = defaultdict(list)
     for e in events:

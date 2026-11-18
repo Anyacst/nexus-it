@@ -44,6 +44,25 @@
       "type": "match",
       "severity": "medium",
       "match": {"label": "Unknown gap"}
+    },
+    {
+      "id": "R6",
+      "title": "Lock released at night",
+      "description": "Lock releases between 23:00 and 06:00 local time are unusual for this household. Set timezone to the household's zone (an IANA name such as Europe/London follows daylight saving).",
+      "type": "time_of_day",
+      "severity": "medium",
+      "match": {"event": "lock_released"},
+      "start": "23:00",
+      "end": "06:00",
+      "timezone": "UTC"
+    },
+    {
+      "id": "R7",
+      "title": "Unexpected MQTT client identity",
+      "description": "Each device should publish under its own client ID, and only the gateway logger may hold other sessions. Another client ID may be a spoofed or misconfigured client.",
+      "type": "mqtt_client",
+      "severity": "high",
+      "allowed": ["{device}", "nexus-gateway"]
     }
   ]
 }

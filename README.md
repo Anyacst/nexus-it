@@ -57,8 +57,12 @@ Rules are JSON (`{"rules": [...]}`). Each has an `id`, `title`, `type`, optional
 | `absent_within` | a `trigger` row has no `expect` row within `window_seconds` (`direction`: before, after or both) | R1: lock released with no motion within 30 s |
 | `sequence` | a `then` row follows a `first` row within `within_seconds` | R2: door opened within 10 s of a lock release |
 | `count_within` | `count` matching rows fall within `window_seconds` | R3: 15 door openings in a minute |
+| `time_of_day` | a row falls between `start` and `end` (`"HH:MM"`, may wrap past midnight) in `timezone`, optionally only on some `days` | R6: lock released between 23:00 and 06:00 |
+| `mqtt_client` | a row decoded from MQTT has a client ID not allowed by `allowed` (wildcards; `{device}` = the device the message was for) | R7: a client publishing under another device's ID |
 
 A matcher without `label` only counts Confirmed and Single-source rows, so an Inferred event never satisfies an expectation and a gap is never mistaken for an event. Rules run on the clock-corrected times; a finding that cites uncalibrated rows says so, because its time window may not hold. Findings are leads for review, not conclusions.
+
+`timezone` accepts `UTC`, a fixed offset such as `+05:30`, or an IANA name such as `Europe/London`, which follows daylight saving (IANA names need the system time-zone database; Windows needs the `tzdata` package). `time_of_day` also reports a row whose best time is just outside the window when its time range reaches into it, and says so. `mqtt_client` checks the client ID of each MQTT PUBLISH that supports a row (timeline rows list them as `mqtt_publishers`) and of each MQTT session packet; for a session, `{device}` is the device that `devices.json` maps to its IP address. A client ID whose CONNECT happened before the capture started is unknown and only reported with `"flag_unknown": true`. A client ID is chosen by the client, so a match proves nothing on its own; a mismatch is a lead.
 
 ## Chain of custody and examiner notes
 
