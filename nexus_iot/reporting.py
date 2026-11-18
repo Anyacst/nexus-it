@@ -18,6 +18,22 @@ def _write_reports(result: dict, output: Path) -> None:
     rows = result["timeline"]
     lines = ["# NEXUS-IoT Incident Reconstruction", "", f"Created: {result['created_at']}", "", "## Evidence validation", ""]
     lines += [f"- {md(x)}" for x in result["validation_issues"]] or ["- No validation findings."]
+    if "rule_findings" in result:
+        rules = result.get("rules") or {}
+        lines += ["", "## Rule findings", "", f"Rules file: {md(rules.get('source', 'unknown'))} (SHA-256 `{rules.get('sha256', '')}`, "
+                  f"{len(rules.get('rules', []))} rule(s))", ""]
+        if result["rule_findings"]:
+            lines += ["| UTC time | Severity | Rule | Detail | Event IDs |", "|---|---|---|---|---|"]
+            for f in result["rule_findings"]:
+                try:
+                    when = datetime.fromtimestamp(f["timestamp"], timezone.utc).isoformat()
+                except (ValueError, OverflowError, OSError, TypeError):
+                    when = str(f.get("timestamp"))
+                detail = f["detail"] + (f" {f['time_note']}" if f.get("time_note") else "")
+                lines.append(f"| {md(when)} | {md(f['severity'])} | {md(f['rule_id'])}: {md(f['title'])} | {md(detail)} | "
+                             f"{md(', '.join(f['event_ids']))} |")
+        else:
+            lines.append("No rule matched.")
     lines += ["", "## Clock estimates", "", "| Source | Offset (s) | Drift (ppm) | Uncertainty (s) | Anchors | Applied |", "|---|---:|---:|---:|---:|---|"]
     for source, x in result["clock_estimates"].items():
         unc = "unknown" if x["uncertainty_seconds"] is None else f"±{x['uncertainty_seconds']:.6f}"

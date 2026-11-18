@@ -1,0 +1,49 @@
+{
+  "rules": [
+    {
+      "id": "R1",
+      "title": "Lock released with no motion nearby",
+      "description": "Someone normally walks past the motion sensor when the lock is released. No motion within 30 s either side is worth a look.",
+      "type": "absent_within",
+      "severity": "high",
+      "trigger": {"event": "lock_released"},
+      "expect": {"event": "motion_detected"},
+      "window_seconds": 30
+    },
+    {
+      "id": "R2",
+      "title": "Door opened soon after lock release",
+      "description": "Context rule: places a door opening next to the lock release that allowed it.",
+      "type": "sequence",
+      "severity": "info",
+      "first": {"event": "lock_released"},
+      "then": {"event": "door_open"},
+      "within_seconds": 10
+    },
+    {
+      "id": "R3",
+      "title": "Repeated door openings",
+      "description": "More than one door opening every 4 s on average for a minute is unusual for a household door.",
+      "type": "count_within",
+      "severity": "medium",
+      "match": {"event": "door_open"},
+      "count": 15,
+      "window_seconds": 60
+    },
+    {
+      "id": "R4",
+      "title": "Lock event seen by only one source",
+      "description": "The device and the gateway should both record lock events; one-sided records need corroboration.",
+      "type": "match",
+      "severity": "medium",
+      "match": {"event": ["lock_released", "lock_engaged"], "label": "Single-source"}
+    },
+    {
+      "id": "R5",
+      "title": "Gap in device evidence",
+      "type": "match",
+      "severity": "medium",
+      "match": {"label": "Unknown gap"}
+    }
+  ]
+}

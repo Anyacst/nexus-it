@@ -1,6 +1,6 @@
 # NEXUS-IoT Project Documentation
 
-Last updated: 18 Nov 2026 · Living version: [Claude Docs](https://claude.ai/artifact/TWNi6v9BzenhawZ1h2FtPe)
+Last updated: 18 Nov 2026 (v1.2.0) · Living version: [Claude Docs](https://claude.ai/artifact/TWNi6v9BzenhawZ1h2FtPe)
 
 ## Overview
 
@@ -23,30 +23,28 @@ NEXUS-IoT rebuilds one trustworthy timeline of an incident from the logs and net
 
 ## Current status
 
-The analysis engine is built and works end to end on synthetic data; the project as a whole is about 60% complete. The code is about 1,500 lines of standard-library Python 3.10+ with no third-party dependencies (repository: [swastikxojha/Nexus-IOT](https://github.com/swastikxojha/Nexus-IOT), one commit on 16 Nov 2026).
+Version 1.2.0 is feature-complete for the planned scope: the analyzer, MQTT decoding, detection rules, the HTML report, the web UI with case management, and a Docker testbed with a multi-seed benchmark all work and are tested. The code is standard-library Python 3.10+ with no runtime dependencies; the testbed needs Docker (repository: [Anyacst/nexus-it](https://github.com/Anyacst/nexus-it)).
 
-| Component | File | State |
+| Component | Files | State |
 | --- | --- | --- |
-| Acquisition, hashing, prior-manifest comparison | `pipeline.py` | Done |
-| Record validation (malformed rows, sequences, conflicts) | `pipeline.py` | Done |
-| Clock offset and drift model, one step change | `pipeline.py` | Done |
-| Timeline labels and report writing (JSON, Markdown) | `pipeline.py` | Done |
-| HMAC manifest signing and verification | `pipeline.py` | Done |
-| PCAP / PCAPNG header parsing and flow rules | `capture.py` | Done, headers only |
-| CLI: `analyze`, `verify-manifest`, `evaluate`, `serve` | `__main__.py` | Done |
-| Local web viewer | `web.py` | Basic table only |
+| Acquisition, hashing, prior-manifest comparison | `evidence.py` | Done |
+| Record validation (malformed rows, sequences, conflicts, capture jitter) | `timeline.py` | Done |
+| Clock offset and drift model, one forward or backward step | `clock.py` | Done |
+| Timeline labels; JSON, Markdown and HTML reports | `timeline.py`, `reporting.py`, `report_html.py` | Done |
+| HMAC manifest signing and verification | `reporting.py` | Done |
+| PCAP / PCAPNG parsing and flow rules | `capture.py` | Done |
+| MQTT 3.1.1 decoding with TCP reassembly (capture as third witness) | `mqtt.py`, `evidence.py` | Done |
+| Detection rules (match, absent-within, sequence, count-within) with example rules | `rules.py`, `rules/` | Done |
+| CLI: `analyze` (`--rules`), `check-rules`, `export-html`, `verify-manifest`, `evaluate`, `serve`, `--version` | `__main__.py` | Done |
+| Local web UI with filters, row drill-down, report download and saved cases (list, re-analyze, delete) | `web.py` | Done |
+| Continuous integration: unit tests on Python 3.10-3.13, Docker integration on `main` | `.github/workflows/tests.yml` | Done |
 | Synthetic scenarios and scoring (10 cases) | `scenarios.py`, `evaluate.py` | Done |
-| Unit and integration tests (24) | `tests/test_project.py` | Done, not re-run for this review |
-| Realistic evidence (simulated testbed) | — | Not started |
-| MQTT payload parsing | — | Not started |
-| PDF / HTML report export, visual timeline | — | Not started |
-| Project write-up | — | This document is the start |
-
-The tests were not executed during this review; run `python -m unittest discover -v` to confirm they pass.
+| Docker testbed: 5 devices, 7 seeded scenarios, benchmark | `testbed/` | Done |
+| Tests: 95 analyzer tests, 138 testbed tests (10 need Docker) | `tests/`, `testbed/tests/` | All passing (Python 3.10, 3.12, 3.15) |
 
 ## System architecture
 
-All three entry points call one function, `analyze()`, which runs six stages in order and writes its outputs outside the evidence folder.
+All three entry points call one function, `analyze()` in `pipeline.py`, which runs six stages in order and writes its outputs outside the evidence folder. Since v1.1.0 the stages live in separate modules: `evidence.py` (acquire, parse), `timeline.py` (validate, correlate, label), `clock.py` (clock models) and `reporting.py` (reports, signatures); `mqtt.py` decodes MQTT from captures and `report_html.py` renders the HTML report. Since v1.2.0 an optional rules stage (`rules.py`) evaluates examiner-supplied detection rules on the finished timeline; it reads the timeline only and never changes labels or validation findings.
 
 ![NEXUS-IoT architecture: 6 pipeline stages, 3 entry points](images/architecture.png)
 
@@ -85,70 +83,82 @@ Errors appear only where tampering inserts or edits records: inserted claims cou
 
 ## Remaining work
 
-Six must-have items remain before the project is complete; three more would make it a professional tool.
+The planned must-have work is complete. Optional extensions, in order of value:
 
-**Must have**
+- [x] **Case management**: saved cases with name, case number, examiner, rules file and analysis history; re-analysis compares hashes with the previous run; delete removes derived outputs only.
+- [x] **Detection rules**: JSON rules file (`match`, `absent_within`, `sequence`, `count_within`) evaluated on the corrected timeline, with findings in every report.
+- [x] **Continuous integration**: GitHub Actions running the analyzer and testbed unit tests on every push.
+- [ ] **Chain-of-custody log and examiner notes**: an append-only per-case log of who analyzed what and when, and notes attached to timeline rows.
+- [ ] **More rule types**: time-of-day windows ("commands at unusual hours") and rules on MQTT client identity.
+- [ ] **Wider protocol coverage**: CoAP or HTTP telemetry, and MQTT 5.
+- [ ] **Real-device validation**: a small physical testbed with independently recorded ground truth.
 
-- [ ] **Docker simulation testbed** — realistic multi-device evidence with recorded ground truth (design below).
-- [ ] **MQTT parsing** — read client ID, topic and message type from captures, not only packet headers.
-- [ ] **Better web UI** — visual timeline, filters by device and label, click an event to see its source line.
-- [ ] **Report export** — PDF or HTML report with case details, hashes, timeline and findings.
-- [ ] **Repository cleanup**
-    - Remove 9 committed `__pycache__` files, legacy `data/evidence/` and the duplicate `sample_inputs/`.
-    - Align versions: `pyproject.toml` says 0.1.0, `pipeline.py` says 1.0.0.
-    - Split `pipeline.py` (553 lines) into modules and expand dense one-line code.
-    - Fix the CLI help ("E1-E7") to match the 10 cases; add a LICENSE.
-- [ ] **Project write-up** — complete this document with testbed results and a tool comparison.
+## Docker simulation testbed
 
-**Nice to have**
+A Docker Compose testbed replaces physical hardware: five Python device containers publish MQTT telemetry to a Mosquitto broker while a gateway logger and tcpdump record what they send. Each run produces a case folder in the format the analyzer reads, plus a ground-truth file it never sees. Details: [`testbed/README.md`](../testbed/README.md).
 
-- [ ] **Case management** — case number, examiner, chain-of-custody log, notes on events.
-- [ ] **Detection rules** — a device going silent, a clock jump, an unknown device appearing.
-- [ ] **Packaging and CI** — Docker image for the tool, GitHub Actions running the tests.
+![Docker testbed: devices, broker, gateway logger, capture, runner](images/docker-testbed.png)
 
-## Planned Docker simulation testbed
-
-A Docker Compose testbed replaces physical hardware: three Python device containers talk MQTT to a Mosquitto broker while a gateway logger and tcpdump record what they send. Each run produces a case folder in the format the pipeline already reads, plus a ground-truth file it never sees.
-
-![Planned Docker testbed: 6 containers, 1 host runner](images/docker-testbed.png)
+| Device | Interval | Events |
+| --- | --- | --- |
+| door-sensor | 3 s | `door_open`, `door_close` |
+| temp-sensor | 2 s | `temperature_reading` |
+| smart-plug | 4 s | `plug_on`, `plug_off` |
+| motion-sensor | 5 s | `motion_detected`, `motion_cleared` |
+| smart-lock | 6 s | `lock_engaged`, `lock_released` |
 
 **How devices produce realistic evidence.**
 
-- Each device writes its own JSONL log with `event_id`, `sequence`, `device`, `event` and its own `timestamp`.
-- Clock error is simulated in software (an offset, a drift in ppm, or a step at a set second), because containers share the host clock.
-- The gateway logger stamps each message on arrival with the gateway clock, giving the pipeline its clock anchors.
-- A `devices.json` maps fixed container IPs to devices so capture flow rules can link packets to events.
-- The runner records every true event and time in `truth.json`, in the format `evaluate.py` already scores.
+- Each device writes its own JSONL log with `event_id`, `sequence`, `device`, `event` and its own `timestamp`, and publishes only while connected.
+- Clock error is simulated in software (offset, drift in ppm, or a step), because containers share the host clock.
+- The gateway logger stamps each message on arrival with the gateway clock, giving the analyzer its clock anchors; the packet capture is a third, independent witness.
+- The runner records every true event and time in `truth.json`, and keeps byte-identical originals with SHA-256 sums before any tampering.
 
-**Planned scenarios.**
+**Scenarios.** Fault parameters are derived from the seed, so every seed is a different variant.
 
-| ID | Scenario | How it is produced | Expected tool behaviour |
-| --- | --- | --- | --- |
-| S1 | Normal operation | All devices run, clocks in sync | Events Confirmed |
-| S2 | Device disconnection | `docker network disconnect` one device for a set time | Device-only events and an Unknown gap at the gateway |
-| S3 | Clock step | One device jumps its clock forward mid-run | Piecewise clock fit, step flagged |
-| S4 | Clock drift | One device drifts beyond the 1,000 ppm limit | Correction refused, anomaly flagged |
-| S5 | Capture gap | Packet capture paused for a set time | Missing packets; JSONL evidence still Confirmed |
-| S6 | Post-collection tampering | A collected log copy has a line deleted, edited or inserted | Sequence gap, conflicting claim, or hash change against the prior manifest |
-| S7 | Combined | S2 + S3 + S6 in one run | Each finding reported separately |
+| ID | Scenario | Seeded fault |
+| --- | --- | --- |
+| S1 | Normal operation | none |
+| S2 | Device disconnection | one device off the network for 6-22 s |
+| S3 | Clock step | one device: offset up to ±10 s, then a ±5-120 s jump |
+| S4 | Clock drift | one device drifts ±2,000-20,000 ppm |
+| S5 | Capture gap | packet capture stopped for 5-15 s |
+| S6 | Post-collection tampering | one line deleted in one log; one edited and one fabricated line in another |
+| S7 | Combined | disconnect + clock step + tampering |
 
 ## Roadmap and milestones
 
-The work runs in four phases, each closed by a gate; documentation comes first so the build follows an agreed design.
+All four phases are complete; the optional extensions under Remaining work are the next increment.
 
-![Project roadmap: 4 phases, 4 gates, not to scale](images/roadmap.png)
+![Project roadmap: 4 phases, 4 gates](images/roadmap.png)
 
-Open question: what is the submission deadline, and does it require a written report in a set format? The answer sets each phase's length.
+## Comparison with existing tools
+
+NEXUS-IoT is narrow by design: it does one job that general tools leave to the examiner, namely reconciling several IoT sources with disagreeing clocks into one timeline that states how well each event is supported. The comparison below reflects each tool's general, documented purpose.
+
+| Capability | NEXUS-IoT | Wireshark | Plaso / log2timeline | Autopsy |
+| --- | --- | --- | --- | --- |
+| Main input | IoT JSONL logs, gateway log, PCAP/PCAPNG | Packet captures | Disk images and many log/artifact formats | Disk images, files |
+| Protocol depth | MQTT 3.1.1 only | Thousands of dissectors | Not a packet tool | Not a packet tool |
+| Merges sources into one timeline | Yes | No | Yes (super-timeline) | Partly (timeline module) |
+| Corrects each device's clock against a reference | Yes (offset, drift, one step) | No | No, trusts each source's timestamps | No |
+| Labels how well each event is supported | Yes (Confirmed, Single-source, Inferred, Unknown gap) | No | No | No |
+| Flags gaps, conflicts and clock anomalies | Yes | No | No | No |
+| Evidence hashing and signed manifest | Yes (SHA-256, HMAC) | No | Hashes in storage metadata | Yes, with case management |
+| Configurable detection rules | Yes (JSON, 4 rule types) | Display filters only | No (analysis plugins) | Keyword and hash-set hits |
+| Evaluated against known ground truth | Yes (synthetic + Docker testbed) | n/a | n/a | n/a |
+
+In practice the tools complement each other: Wireshark for deep inspection of a suspicious flow, Plaso or Autopsy for host artifacts, and NEXUS-IoT to reconcile the IoT devices and gateway into one defensible sequence of events.
 
 ## Limitations and references
 
 The current results describe behaviour on known fixtures, not real-world accuracy or courtroom suitability.
 
-- **Synthetic evaluation.** The same author wrote the generator and the analyzer, so near-perfect scores are expected; the Docker testbed reduces but does not remove this bias.
+- **Simulated evaluation.** Both the synthetic cases and the Docker testbed were built alongside the analyzer, so high scores are expected; the testbed adds real MQTT, TCP and Docker timing but shares the host clock and uses software-simulated clock faults.
 - **Hashes prove bytes, not history.** A first-run hash cannot reveal edits made before acquisition, and it does not establish chain of custody or authorship.
 - **Careful tampering can evade detection.** An edit that keeps event IDs, sequence numbers, timing and cross-source agreement consistent may go unflagged.
-- **Narrow capture support.** Ethernet, raw IP and Linux cooked v1/v2 headers only; no payload decoding or TCP stream reassembly.
-- **Simple clock model.** At most one step change and two linear segments; the gateway clock is assumed correct.
+- **Narrow capture support.** Ethernet, raw IP and Linux cooked v1/v2; payloads are decoded only for MQTT 3.1.1, and reassembly stops at a capture gap.
+- **Simple clock model.** At most one step change (forward or backward) and two linear segments; the gateway clock is assumed correct.
 - **Single-user local UI.** Loopback only, no authentication.
 
 **Tools to compare against in the write-up:** [Wireshark](https://www.wireshark.org/) (packet analysis), [Plaso / log2timeline](https://github.com/log2timeline/plaso) (super-timelines), [Autopsy](https://www.autopsy.com/) (case-based forensics), [Eclipse Mosquitto](https://mosquitto.org/) (MQTT broker used in the testbed).

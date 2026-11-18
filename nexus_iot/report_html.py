@@ -114,6 +114,8 @@ svg.tl rect.mk{fill-opacity:.45;stroke-width:1}svg.tl circle.mk{fill-opacity:.85
 .legend{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;margin:.4rem 0 .8rem;font-size:.85rem;align-items:center}
 .legend span{display:inline-flex;align-items:center;gap:.35rem}
 .note{border-left:3px solid var(--c-single);padding:.3rem .7rem;margin:.5rem 0;background:var(--head)}
+.sev{font-weight:700;text-transform:uppercase;font-size:.78rem;white-space:nowrap}
+.sev-high{color:var(--c-gap)}.sev-medium{color:var(--c-single)}.sev-low{color:var(--c-network)}.sev-info{color:var(--c-other)}
 ul.issues{margin:.2rem 0;padding-left:1.2rem}ul.issues li{padding:.15rem 0}
 ul.ev{margin:.3rem 0;padding-left:1.1rem}
 details summary{cursor:pointer}
@@ -121,11 +123,13 @@ details dl.meta{font-size:.8rem}
 tr:target td{background:var(--head)}
 td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 td.time{white-space:nowrap;font-variant-numeric:tabular-nums}
-form.filters{display:flex;flex-wrap:wrap;gap:.6rem;align-items:end}
-form.filters label{display:flex;flex-direction:column;font-size:.85rem;gap:.2rem}
+.filters{display:flex;flex-wrap:wrap;gap:.6rem;align-items:end}
+.filters label,label.wide{display:flex;flex-direction:column;font-size:.85rem;gap:.2rem}
 input,select{padding:.55rem;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);font:inherit}
 input.wide{width:min(700px,90%)}
+label.wide{margin:.3rem 0 .6rem}
 button{padding:.6rem 1.2rem;background:var(--accent);color:var(--accent-fg);border:0;border-radius:6px;font:inherit;cursor:pointer}
+button.secondary{background:var(--c-gap)}
 .no-print{}
 @media print{
 :root{--bg:#fff;--fg:#000;--muted:#444;--card:#fff;--line:#bbb;--head:#eee;--grid:#ccc;
@@ -170,6 +174,8 @@ class ReportView:
     query: str = ""
     base_path: str = "/"
     links: list[tuple[str, str]] = field(default_factory=list)
+    hidden: dict[str, str] = field(default_factory=dict)
+    """Extra query parameters kept on every filter link and form (e.g. the selected case)."""
 
     def is_filtered(self) -> bool:
         """Return True when any filter is active."""
@@ -177,7 +183,7 @@ class ReportView:
 
     def href(self, **changes: str) -> str:
         """Return an HTML-attribute-escaped filter URL with the current filters updated by ``changes``."""
-        params = {"device": self.device, "label": self.label, "q": self.query}
+        params = {**self.hidden, "device": self.device, "label": self.label, "q": self.query}
         params.update(changes)
         kept = {k: v for k, v in params.items() if v}
         query = urlencode(kept)
@@ -358,9 +364,12 @@ def _summary(rows: list[dict], report: dict, view: ReportView | None, shown: int
     sources = {source for row in rows for source in row_sources(row)}
     manifest = _as_list(report.get("evidence_manifest"))
     issues = _as_list(report.get("validation_issues"))
+    rule_text = ""
+    if "rule_findings" in report:
+        rule_text = f" · <a href='#rules'>{len(_as_list(report.get('rule_findings')))} rule finding(s)</a>"
     totals = (
         f"<p>{len(rows)} timeline row(s) · {len(sources)} device/source lane(s) · "
-        f"{len(manifest)} evidence file(s) · {len(issues)} validation finding(s)</p>"
+        f"{len(manifest)} evidence file(s) · {len(issues)} validation finding(s){rule_text}</p>"
     )
     filtered = ""
     if view is not None and view.is_filtered():
@@ -399,6 +408,46 @@ def _validation(report: dict) -> str:
     else:
         body = "<ul class=issues>" + "".join(f"<li>{_e(issue)}</li>" for issue in issues) + "</ul>"
     return f"<section class=card id=validation><h2>Validation findings</h2>{body}</section>"
+
+
+SEVERITY_ORDER = ("high", "medium", "low", "info")
+
+
+def _rule_findings(report: dict, rows: list[dict]) -> str:
+    """Render detection-rule findings, linking each cited event to its timeline row."""
+    if "rule_findings" not in report:
+        return ""
+    rules = _as_dict(report.get("rules"))
+    findings = [f for f in _as_list(report.get("rule_findings")) if isinstance(f, dict)]
+    row_index = {str(row.get("event_id")): i for i, row in enumerate(rows) if row.get("event_id")}
+    counts = {sev: sum(1 for f in findings if f.get("severity") == sev) for sev in SEVERITY_ORDER}
+    chips = "".join(f"<span class=chip><span class='sev sev-{sev}'>{sev}</span> <b>{n}</b></span>"
+                    for sev, n in counts.items() if n)
+    source = (f"<p class='muted small'>Rules file <code>{_e(rules.get('source', 'unknown'))}</code> · "
+              f"SHA-256 <code>{_e(rules.get('sha256', ''))}</code> · {len(_as_list(rules.get('rules')))} rule(s)</p>")
+    if not findings:
+        return f"<section class=card id=rules><h2>Rule findings</h2>{source}<p>No rule matched.</p></section>"
+    body = []
+    for f in findings:
+        sev = str(f.get("severity", "info"))
+        sev_class = sev if sev in SEVERITY_ORDER else "info"
+        events = []
+        for event_id in _as_list(f.get("event_ids")):
+            index = row_index.get(str(event_id))
+            text = f"<code>{_e(event_id)}</code>"
+            events.append(f"<a href='#row-{index}'>{text}</a>" if index is not None else text)
+        note = f"<div class='muted small'>{_e(f.get('time_note'))}</div>" if f.get("time_note") else ""
+        body.append(
+            f"<tr><td class=time>{_e(_iso(f.get('timestamp')))}</td><td><span class='sev sev-{sev_class}'>{_e(sev)}</span></td>"
+            f"<td><b>{_e(f.get('rule_id', ''))}</b> {_e(f.get('title', ''))}</td>"
+            f"<td>{_e(f.get('detail', ''))}{note}</td><td>{'<br>'.join(events)}</td></tr>"
+        )
+    return (
+        f"<section class=card id=rules><h2>Rule findings</h2>{source}<div class=chips>{chips}</div><div class=scroll><table>"
+        "<thead><tr><th>Time (UTC)</th><th>Severity</th><th>Rule</th><th>Detail</th><th>Cited events</th></tr></thead>"
+        f"<tbody>{''.join(body)}</tbody></table></div>"
+        "<p class='muted small'>Findings are leads for review, not conclusions; they carry the uncertainty of the rows they cite.</p></section>"
+    )
 
 
 def _clocks(report: dict) -> str:
@@ -692,12 +741,13 @@ def _filter_form(all_rows: list[dict], view: ReportView) -> str:
             opts.append(f"<option value='{_e(value)}'{sel}>{_e(value)}</option>")
         return "".join(opts)
 
-    clear = f" <a href='{_e(view.base_path)}'>Clear filters</a>" if view.is_filtered() else ""
+    clear = f" <a href='{view.href(device='', label='', q='')}'>Clear filters</a>" if view.is_filtered() else ""
+    hidden = "".join(f"<input type=hidden name='{_e(k)}' value='{_e(v)}'>" for k, v in view.hidden.items())
     links = " · ".join(f"<a href='{_e(href)}'>{_e(text)}</a>" for text, href in view.links)
     links_html = f"<p class=small>Download: {links}</p>" if links else ""
     return (
         "<section class='card no-print' id=filters><h2>Filter timeline</h2>"
-        f"<form class=filters method=get action='{_e(view.base_path)}'>"
+        f"<form class=filters method=get action='{_e(view.base_path)}'>{hidden}"
         f"<label>Device / source<select name=device>{options(sources, view.device, 'All sources')}</select></label>"
         f"<label>Label<select name=label>{options(labels, view.label, 'All labels')}</select></label>"
         f"<label>Text search<input name=q maxlength=200 value='{_e(view.query)}' placeholder='event, ID, evidence…'></label>"
@@ -752,6 +802,7 @@ def render_report_body(
         sections.append(_filter_form(all_rows, view))
     sections += [
         _svg_timeline(indexed, view),
+        _rule_findings(report, all_rows),
         _manifest(report),
         _validation(report),
         _clocks(report),

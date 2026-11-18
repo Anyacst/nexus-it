@@ -18,7 +18,9 @@ def write_rows(path: Path, rows: list[dict]) -> None:
     path.write_text("\n".join(json.dumps(row) for row in rows), encoding="utf-8")
 
 
-class WebUiTests(unittest.TestCase):
+class WebUiBase(unittest.TestCase):
+    """Starts a server on a temporary project with a two-device evidence folder."""
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
@@ -66,6 +68,8 @@ class WebUiTests(unittest.TestCase):
         """Count rendered timeline table rows."""
         return page.count(b"<tr id='row-")
 
+
+class WebUiTests(WebUiBase):
     def test_filters_and_expandable_rows(self):
         page = self.analyze_case()
         self.assertEqual(self.rows(page), 3)
@@ -138,6 +142,104 @@ class WebUiTests(unittest.TestCase):
         status, _, _ = self.request("POST", "/analyze", "x=1", {"Origin": "http://evil.example", "Content-Type": "application/x-www-form-urlencoded"})
         self.assertEqual(status, 403)
         status, _, _ = self.request("GET", "/does-not-exist")
+        self.assertEqual(status, 404)
+
+
+class CaseManagementTests(WebUiBase):
+    """Saved cases: list, open, re-analyze, rules and delete."""
+
+    def token(self) -> str:
+        _, _, page = self.request("GET", "/cases")
+        return re.search(rb"name=csrf_token value='([^']+)'", page).group(1).decode()
+
+    def post(self, path: str, fields: dict) -> tuple[int, bytes]:
+        body = urlencode({"csrf_token": self.token(), **fields})
+        status, _, page = self.request("POST", path, body, {"Content-Type": "application/x-www-form-urlencoded"})
+        return status, page
+
+    def make_evidence(self, name: str) -> Path:
+        folder = self.root / name
+        folder.mkdir()
+        write_rows(folder / "lock.jsonl", [
+            {"event_id": "l-1", "sequence": 1, "timestamp": 100, "device": "smart-lock", "event": "lock_released"},
+        ])
+        return folder
+
+    def case_ids(self) -> list[str]:
+        _, _, page = self.request("GET", "/cases")
+        return [m.decode() for m in re.findall(rb"href='/\?case=([0-9a-f]{20})'", page)]
+
+    def test_cases_are_listed_opened_and_kept_apart(self):
+        status, page = self.post("/analyze", {"evidence": str(self.evidence), "name": "Case <A>", "case_number": "2026-17",
+                                              "examiner": "Examiner One"})
+        self.assertEqual(status, 200)
+        self.assertIn(b"Case &lt;A&gt;", page)
+        self.assertIn(b"2026-17", page)
+        other = self.make_evidence("other")
+        self.post("/analyze", {"evidence": str(other)})
+        ids = self.case_ids()
+        self.assertEqual(len(ids), 2)
+        first = [i for i in ids if (self.root / "derived" / "web" / i / "case.json").read_text().find("Case <A>") >= 0][0]
+        meta = json.loads((self.root / "derived" / "web" / first / "case.json").read_text())
+        self.assertEqual((meta["name"], meta["case_number"], meta["examiner"]), ("Case <A>", "2026-17", "Examiner One"))
+
+        status, _, page = self.request("GET", "/?case=" + first)
+        self.assertEqual(status, 200)
+        self.assertEqual(self.rows(page), 3)
+        self.assertIn(f"case={first}&amp;device=sensor-A".encode(), page)
+        self.assertIn(f"<input type=hidden name='case' value='{first}'>".encode(), page)
+        status, _, body = self.request("GET", f"/report.json?case={first}")
+        self.assertEqual(len(json.loads(body)["timeline"]), 3)
+        status, _, body = self.request("GET", f"/report.html?case={first}")
+        self.assertIn(b"Examiner One", body)
+
+        for bad in ("../../etc", "0" * 20, "zz"):
+            status, _, _ = self.request("GET", "/?" + urlencode({"case": bad}))
+            self.assertEqual(status, 404, bad)
+        status, _, _ = self.request("GET", "/report.json?case=../x")
+        self.assertEqual(status, 404)
+
+    def test_reanalysis_keeps_case_and_reports_evidence_changes(self):
+        self.post("/analyze", {"evidence": str(self.evidence), "name": "Kept name"})
+        (case_id,) = self.case_ids()
+        with (self.evidence / "sensor-B.jsonl").open("a", encoding="utf-8") as f:
+            f.write("\n" + json.dumps({"event_id": "b-2", "sequence": 2, "timestamp": 120, "device": "sensor-B", "event": "door_close"}))
+        status, page = self.post("/analyze", {"evidence": str(self.evidence), "name": ""})
+        self.assertEqual(status, 200)
+        self.assertEqual(self.case_ids(), [case_id])
+        meta = json.loads((self.root / "derived" / "web" / case_id / "case.json").read_text())
+        self.assertEqual((meta["name"], meta["analysis_count"]), ("Kept name", 2))
+        self.assertIn(b"SHA-256 differs from the prior project manifest", page)
+
+    def test_rules_file_from_form(self):
+        rules = self.root / "rules.json"
+        rules.write_text(json.dumps({"rules": [{"id": "R1", "title": "Door seen", "type": "match", "severity": "high",
+                                                "match": {"event": "door_open"}}]}), encoding="utf-8")
+        status, page = self.post("/analyze", {"evidence": str(self.evidence), "rules": str(rules)})
+        self.assertEqual(status, 200)
+        self.assertIn(b"id=rules", page)
+        self.assertIn(b"Door seen", page)
+        _, _, page = self.request("GET", "/cases")
+        self.assertIn(b"<td class=num>1</td></tr>", page)
+        status, page = self.post("/analyze", {"evidence": str(self.evidence), "rules": str(self.root / "missing.json")})
+        self.assertEqual(status, 400)
+        self.assertIn(b"Rules file does not exist", page)
+
+    def test_delete_removes_outputs_only(self):
+        self.post("/analyze", {"evidence": str(self.evidence)})
+        (case_id,) = self.case_ids()
+        body = urlencode({"csrf_token": "wrong", "case": case_id})
+        status, _, _ = self.request("POST", "/case/delete", body, {"Content-Type": "application/x-www-form-urlencoded"})
+        self.assertEqual(status, 403)
+        status, page = self.post("/case/delete", {"case": "../evidence"})
+        self.assertEqual(status, 404)
+        status, page = self.post("/case/delete", {"case": case_id})
+        self.assertEqual(status, 200)
+        self.assertIn(b"evidence folder was not changed", page)
+        self.assertFalse((self.root / "derived" / "web" / case_id).exists())
+        self.assertTrue((self.evidence / "sensor-A.jsonl").is_file())
+        self.assertEqual(self.case_ids(), [])
+        status, _, _ = self.request("GET", "/report.json")
         self.assertEqual(status, 404)
 
 

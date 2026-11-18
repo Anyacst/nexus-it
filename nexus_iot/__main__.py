@@ -8,6 +8,7 @@ from pathlib import Path
 from . import __version__
 from .evaluate import run
 from .pipeline import analyze, verify_manifest
+from .rules import load_rules
 from .report_html import case_info_from, render_report
 from .web import serve
 
@@ -31,6 +32,7 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--max-clock-drift-ppm", type=float, default=1000.0)
     a.add_argument("--max-clock-residual", type=float, default=2.0)
     a.add_argument("--signing-key", type=Path, help="external 32+ byte secret used to HMAC-sign the evidence manifest")
+    a.add_argument("--rules", type=Path, help="JSON detection rules file to evaluate over the timeline (see rules/smart_home.json)")
     _add_case_arguments(a)
 
     x = sub.add_parser("export-html", help="render an existing report.json as a self-contained report.html")
@@ -38,6 +40,9 @@ def build_parser() -> argparse.ArgumentParser:
     x.add_argument("--out", type=Path, help="output HTML file (default: report.html next to report.json)")
     x.add_argument("--title", help="report title shown in the HTML header")
     _add_case_arguments(x)
+
+    c = sub.add_parser("check-rules", help="validate a detection rules file and list its rules")
+    c.add_argument("rules", type=Path)
 
     v = sub.add_parser("verify-manifest", help="verify a detached evidence manifest HMAC signature")
     v.add_argument("manifest", type=Path)
@@ -72,18 +77,25 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "analyze":
         result = analyze(args.evidence, args.out, args.tolerance, True, args.max_clock_drift_ppm,
-                         args.max_clock_residual, args.signing_key)
+                         args.max_clock_residual, args.signing_key, args.rules)
         out = args.out.resolve()
         html_path = out / "report.html"
         html_path.write_text(render_report(result, case_info=case_info_from(args.case_number, args.examiner)), encoding="utf-8")
         print(f"Analyzed {len(result['evidence_manifest'])} evidence files; {len(result['timeline'])} timeline rows.")
         print(f"Markdown report: {out / 'report.md'}")
         print(f"HTML report: {html_path}")
+        if "rule_findings" in result:
+            print(f"Rule findings: {len(result['rule_findings'])} from {len(result['rules']['rules'])} rule(s)")
         if args.signing_key:
             print(f"Signed manifest: {out / 'evidence_manifest.sig'}")
     elif args.command == "export-html":
         target = export_html(args.report, args.out, title=args.title, case_number=args.case_number, examiner=args.examiner)
         print(f"HTML report: {target.resolve()}")
+    elif args.command == "check-rules":
+        ruleset = load_rules(args.rules)
+        print(f"{len(ruleset['rules'])} valid rule(s) in {ruleset['source']} (SHA-256 {ruleset['sha256']})")
+        for r in ruleset["rules"]:
+            print(f"  {r['id']} [{r['severity']}] {r['type']}: {r['title']}")
     elif args.command == "verify-manifest":
         valid = verify_manifest(args.manifest, args.signature, args.key)
         print("Manifest signature valid." if valid else "Manifest signature INVALID.")

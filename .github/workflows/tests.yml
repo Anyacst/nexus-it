@@ -1,0 +1,55 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: Unit tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      # The analyzer and the testbed unit tests use the standard library only; nothing to install.
+      - name: Byte-compile
+        run: python -m compileall -q nexus_iot testbed tests
+      - name: Analyzer tests
+        run: python -m unittest discover -s tests -t . -v
+      - name: Testbed tests (Docker tests skip here)
+        run: python -m unittest discover -s testbed/tests -t . -v
+      - name: CLI smoke test
+        run: |
+          python -m nexus_iot --version
+          python -m nexus_iot check-rules rules/smart_home.json
+          python -m nexus_iot evaluate --root "$RUNNER_TEMP/eval"
+
+  docker:
+    name: Docker testbed integration
+    # Builds the broker, gateway, capture and five device containers and runs real scenarios (about 3-4 minutes).
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Docker integration tests
+        env:
+          NEXUS_DOCKER_TESTS: "1"
+        run: python -m unittest testbed.tests.test_integration_docker -v
+      - name: Clean up containers
+        if: always()
+        run: docker compose -f testbed/docker-compose.yml down -v -t 5 || true

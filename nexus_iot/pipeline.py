@@ -51,13 +51,15 @@ from .reporting import (  # noqa: F401  re-exported for existing importers
     verify_manifest,
 )
 
+from .rules import RULES_LIMITATION, apply_rules, load_rules, rules_summary
+
 VERSION = __version__
 
 
 def analyze(evidence_dir: Path, output_dir: Path, tolerance_seconds: float=0.05, compare_previous: bool=True,
             max_clock_drift_ppm: float=MAX_CLOCK_DRIFT_PPM,
             max_clock_residual_seconds: float=MAX_CLOCK_RESIDUAL_SECONDS,
-            signing_key: Path|None=None) -> dict:
+            signing_key: Path|None=None, rules_path: Path|None=None) -> dict:
     """Analyze supplied evidence read-only; all derived outputs go to output_dir."""
     start = time.perf_counter()
     evidence_dir = evidence_dir.resolve()
@@ -72,6 +74,7 @@ def analyze(evidence_dir: Path, output_dir: Path, tolerance_seconds: float=0.05,
         raise ValueError("maximum clock drift must be a positive finite number")
     if max_clock_residual_seconds <= 0 or not math.isfinite(max_clock_residual_seconds):
         raise ValueError("maximum clock residual must be a positive finite number")
+    ruleset = load_rules(rules_path) if rules_path is not None else None
     prior_path = output_dir/"evidence_manifest.json"
     try:
         previous = json.loads(prior_path.read_text(encoding="utf-8")) if compare_previous and prior_path.exists() else []
@@ -102,6 +105,10 @@ def analyze(evidence_dir: Path, output_dir: Path, tolerance_seconds: float=0.05,
             "An MQTT PUBLISH in a capture is a gateway-clock witness of the payload the device sent; capture time is network delivery time, and payload content is the device's own claim.",
             "Sequence gaps and silence can reflect ordinary loss or device behavior; they are not proof of deletion or an attack.",
             "Periodic-event hypotheses are low-confidence and explicitly labeled Inferred; corroboration rules cannot establish authenticity."]}
+    if ruleset is not None:
+        result["rules"] = rules_summary(ruleset)
+        result["rule_findings"] = apply_rules(timeline, ruleset["rules"])
+        result["limitations"].append(RULES_LIMITATION)
     result["processing_seconds"] = round(time.perf_counter()-start, 6)
     _write_reports(result, output_dir)
     (output_dir/"evidence_manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")

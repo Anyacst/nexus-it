@@ -1,5 +1,7 @@
 # NEXUS-IoT Incident Reconstruction
 
+[![tests](https://github.com/Anyacst/nexus-it/actions/workflows/tests.yml/badge.svg)](https://github.com/Anyacst/nexus-it/actions/workflows/tests.yml)
+
 A local Python research application that builds a reviewable timeline from supplied IoT device logs and gateway captures. It performs read-only acquisition, hashes inputs, validates records and clocks, decodes MQTT from packet captures, correlates matching observations, marks bounded hypotheses, and writes JSON, Markdown and self-contained HTML reports.
 
 **It does not collect from live devices or networks.** It has no third-party runtime dependencies and has been designed for controlled datasets and examiner-supplied files, not production forensic certification. A separate Docker testbed ([`testbed/`](testbed/README.md)) generates realistic multi-device evidence with known ground truth for evaluation.
@@ -23,7 +25,7 @@ python3 -m nexus_iot analyze /cases/case-001 --out /cases/case-001-derived --cas
 
 The output path must be outside the evidence folder. Each input is copied to a temporary analysis snapshot while it is hashed; parsing uses those snapshot bytes, and the temporary copies are removed when the run ends. The source files are never edited. Reuse the same output folder on later runs to compare file hashes with the previous project manifest.
 
-The output folder receives `evidence_manifest.json`, `report.json`, `report.md` and `report.html`. The HTML report is a single self-contained file (no scripts, no external resources) with the case header, evidence hashes, validation findings, clock estimates, an SVG timeline with one lane per device, and the full timeline table; print it to PDF from a browser for a paper copy. `--case-number` and `--examiner` only appear in the HTML header. Re-render a report later with:
+The output folder receives `evidence_manifest.json`, `report.json`, `report.md` and `report.html`. The HTML report is a single self-contained file (no scripts, no external resources) with the case header, rule findings (when `--rules` is given), evidence hashes, validation findings, clock estimates, an SVG timeline with one lane per device, and the full timeline table; print it to PDF from a browser for a paper copy. `--case-number` and `--examiner` only appear in the HTML header. Re-render a report later with:
 
 ```bash
 python3 -m nexus_iot export-html /cases/case-001-derived/report.json --out case-001.html
@@ -38,13 +40,39 @@ python3 -m nexus_iot verify-manifest /cases/case-001-derived/evidence_manifest.j
 
 Keep that secret separately from the evidence and reports. HMAC signatures detect edits when the verification key is trusted; because HMAC is a shared secret, they do not establish who created a manifest or provide non-repudiation.
 
+## Detection rules
+
+A rules file lists patterns an examiner wants flagged in the reconstructed timeline. Pass it with `--rules`; findings are added to all three reports, and the rules file's path and SHA-256 are recorded with them:
+
+```bash
+python3 -m nexus_iot check-rules rules/smart_home.json          # validate and list the rules
+python3 -m nexus_iot analyze /cases/case-001 --out /cases/case-001-derived --rules rules/smart_home.json
+```
+
+Rules are JSON (`{"rules": [...]}`). Each has an `id`, `title`, `type`, optional `severity` (info, low, medium, high) and `description`, and matches timeline rows by `event`, `device` and/or `label` (a string or a list):
+
+| Type | Fires when | Example in `rules/smart_home.json` |
+| --- | --- | --- |
+| `match` | a row matches | R4: a lock event seen by only one source; R5: any Unknown gap |
+| `absent_within` | a `trigger` row has no `expect` row within `window_seconds` (`direction`: before, after or both) | R1: lock released with no motion within 30 s |
+| `sequence` | a `then` row follows a `first` row within `within_seconds` | R2: door opened within 10 s of a lock release |
+| `count_within` | `count` matching rows fall within `window_seconds` | R3: 15 door openings in a minute |
+
+A matcher without `label` only counts Confirmed and Single-source rows, so an Inferred event never satisfies an expectation and a gap is never mistaken for an event. Rules run on the clock-corrected times; a finding that cites uncalibrated rows says so, because its time window may not hold. Findings are leads for review, not conclusions.
+
+## Browser interface
+
 Start the local browser interface:
 
 ```bash
 python3 -m nexus_iot serve
 ```
 
-Open `http://127.0.0.1:8765`, enter the full path to a supplied evidence directory, then inspect its timeline and findings. Filter rows by device/source, label or free text (plain `GET` parameters such as `/?label=Confirmed&device=sensor-A&q=boot`), click a row to see its supporting evidence, and download the HTML report from `/report.html`. The server binds to loopback only, checks Host and Origin, uses a CSRF token and a strict content security policy. It creates `derived/web/<case-key>/` reports; using the same evidence path reuses that case's prior hash manifest. Stop with Ctrl+C.
+Open `http://127.0.0.1:8765`, enter the full path to a supplied evidence directory and, optionally, a case name, case number, examiner and rules file, then inspect its timeline and findings. Filter rows by device/source, label or free text (plain `GET` parameters such as `/?case=<id>&label=Confirmed&device=sensor-A&q=boot`), click a row to see its supporting evidence, and download the reports (`/report.html?case=<id>`, `.json`, `.md`).
+
+Every analyzed folder is saved as a case under `derived/web/<case-id>/` with its reports and a `case.json` (name, number, examiner, evidence path, rules file, first and last analysis time, analysis count). The home page lists all cases. An open case can be re-analyzed with one click: the same folder keeps the same case, and file hashes are compared with the previous run, so changes to the evidence since then are reported. *Delete case outputs* removes only that case's derived folder, never the evidence.
+
+The server binds to loopback only, checks Host and Origin, uses a CSRF token on every form and a strict content security policy. Stop with Ctrl+C.
 
 Example capture input: [`sample_inputs/gateway-demo.pcap`](sample_inputs/gateway-demo.pcap). Analyze it with:
 
@@ -67,8 +95,11 @@ python3 -m testbed.runner.benchmark --seeds 1 2 3 --scenarios all --duration 60
 nexus_iot/       evidence.py (acquisition, hashing, parsing), clock.py (clock models),
                  timeline.py (validation, correlation, labels), reporting.py (reports, signatures),
                  pipeline.py (analyze), capture.py (PCAP/PCAPNG), mqtt.py (MQTT decoding),
-                 report_html.py, web.py, evaluate.py, scenarios.py, __main__.py (CLI)
+                 rules.py (detection rules), report_html.py, web.py (browser UI and cases),
+                 evaluate.py, scenarios.py, __main__.py (CLI)
+rules/           example detection rules (smart_home.json)
 tests/           standard-library unit and integration tests
+.github/         GitHub Actions workflow: tests on every push, Docker testbed on main
 testbed/         Docker simulation, scenario runner, benchmark and their tests
 docs/            project documentation and diagrams
 data/synthetic/  generated E1-E7 and T1-T3 evidence plus separate ground truth (not real device data)
@@ -171,13 +202,15 @@ The benchmark has ten deterministic cases, including four seeded tamper cases, t
 
 ## Tests
 
-The project uses Python's built-in `unittest`; no `pip install` step is required. The suite exercises evidence hashing and preservation, prior-hash changes, event labels, piecewise clock steps, gaps, inferred events, manifest signatures, malformed inputs, PCAP and PCAPNG parsing/aggregation, MQTT decoding and TCP reassembly, the HTML report and web UI (including escaping of untrusted strings), the synthetic evaluation, output-path safety, and the protected local web workflow.
+The project uses Python's built-in `unittest`; no `pip install` step is required. The suite exercises evidence hashing and preservation, prior-hash changes, event labels, piecewise clock steps, gaps, inferred events, manifest signatures, malformed inputs, PCAP and PCAPNG parsing/aggregation, MQTT decoding and TCP reassembly, detection rules, the HTML report and web UI (including escaping of untrusted strings), case management, the synthetic evaluation, output-path safety, and the protected local web workflow.
 
 ```bash
 python3 -m unittest discover -s tests -t . -v            # analyzer
 python3 -m unittest discover -s testbed/tests -t . -v    # testbed (Docker tests skipped)
 NEXUS_DOCKER_TESTS=1 python3 -m unittest testbed.tests.test_integration_docker -v   # real containers
 ```
+
+GitHub Actions (`.github/workflows/tests.yml`) runs the analyzer and testbed unit tests and a CLI smoke test on Python 3.10 to 3.13 for every push and pull request. The Docker integration tests run on pushes to `main` and on manual dispatch.
 
 ## License
 
