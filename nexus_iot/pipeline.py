@@ -51,6 +51,7 @@ from .reporting import (  # noqa: F401  re-exported for existing importers
     verify_manifest,
 )
 
+from .custody import record_analysis, sign_head
 from .rules import RULES_LIMITATION, apply_rules, load_rules, rules_summary
 
 VERSION = __version__
@@ -59,8 +60,13 @@ VERSION = __version__
 def analyze(evidence_dir: Path, output_dir: Path, tolerance_seconds: float=0.05, compare_previous: bool=True,
             max_clock_drift_ppm: float=MAX_CLOCK_DRIFT_PPM,
             max_clock_residual_seconds: float=MAX_CLOCK_RESIDUAL_SECONDS,
-            signing_key: Path|None=None, rules_path: Path|None=None) -> dict:
-    """Analyze supplied evidence read-only; all derived outputs go to output_dir."""
+            signing_key: Path|None=None, rules_path: Path|None=None, *, examiner: str="",
+            case_number: str="") -> dict:
+    """Analyze supplied evidence read-only; all derived outputs go to output_dir.
+
+    Each run appends an analysis entry to output_dir/custody.jsonl (evidence and report hashes,
+    examiner, case number). With a signing key the manifest and the custody log head are signed.
+    """
     start = time.perf_counter()
     evidence_dir = evidence_dir.resolve()
     output_dir = output_dir.resolve()
@@ -116,4 +122,8 @@ def analyze(evidence_dir: Path, output_dir: Path, tolerance_seconds: float=0.05,
         sign_manifest(manifest, signing_key, output_dir/"evidence_manifest.sig")
     result["processing_seconds"] = round(time.perf_counter()-start, 6)
     (output_dir/"report.json").write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+    record_analysis(output_dir, result, examiner=examiner, case_number=case_number, hash_findings=hash_findings,
+                    rules_sha256=ruleset["sha256"] if ruleset else None)
+    if signing_key is not None:
+        sign_head(output_dir, signing_key)
     return result

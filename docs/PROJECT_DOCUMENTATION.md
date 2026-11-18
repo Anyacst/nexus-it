@@ -23,7 +23,7 @@ NEXUS-IoT rebuilds one trustworthy timeline of an incident from the logs and net
 
 ## Current status
 
-Version 1.2.0 is feature-complete for the planned scope: the analyzer, MQTT decoding, detection rules, the HTML report, the web UI with case management, and a Docker testbed with a multi-seed benchmark all work and are tested. The code is standard-library Python 3.10+ with no runtime dependencies; the testbed needs Docker (repository: [Anyacst/nexus-it](https://github.com/Anyacst/nexus-it)).
+Version 1.2.0 is feature-complete for the planned scope: the analyzer, MQTT decoding, detection rules, the HTML report, the web UI with case management, a hash-chained chain-of-custody log with examiner notes, and a Docker testbed with a multi-seed benchmark all work and are tested. The code is standard-library Python 3.10+ with no runtime dependencies; the testbed needs Docker (repository: [Anyacst/nexus-it](https://github.com/Anyacst/nexus-it)).
 
 | Component | Files | State |
 | --- | --- | --- |
@@ -35,16 +35,17 @@ Version 1.2.0 is feature-complete for the planned scope: the analyzer, MQTT deco
 | PCAP / PCAPNG parsing and flow rules | `capture.py` | Done |
 | MQTT 3.1.1 decoding with TCP reassembly (capture as third witness) | `mqtt.py`, `evidence.py` | Done |
 | Detection rules (match, absent-within, sequence, count-within) with example rules | `rules.py`, `rules/` | Done |
-| CLI: `analyze` (`--rules`), `check-rules`, `export-html`, `verify-manifest`, `evaluate`, `serve`, `--version` | `__main__.py` | Done |
+| Chain-of-custody log (hash chain, optional HMAC head signature) and examiner notes with retraction | `custody.py` | Done |
+| CLI: `analyze` (`--rules`), `custody`, `note`, `check-rules`, `export-html`, `verify-manifest`, `evaluate`, `serve`, `--version` | `__main__.py` | Done |
 | Local web UI with filters, row drill-down, report download and saved cases (list, re-analyze, delete) | `web.py` | Done |
 | Continuous integration: unit tests on Python 3.10-3.13, Docker integration on `main` | `.github/workflows/tests.yml` | Done |
 | Synthetic scenarios and scoring (10 cases) | `scenarios.py`, `evaluate.py` | Done |
 | Docker testbed: 5 devices, 7 seeded scenarios, benchmark | `testbed/` | Done |
-| Tests: 95 analyzer tests, 138 testbed tests (10 need Docker) | `tests/`, `testbed/tests/` | All passing (Python 3.10, 3.12, 3.15) |
+| Tests: 111 analyzer tests, 138 testbed tests (10 need Docker) | `tests/`, `testbed/tests/` | All passing (Python 3.10, 3.12, 3.15) |
 
 ## System architecture
 
-All three entry points call one function, `analyze()` in `pipeline.py`, which runs six stages in order and writes its outputs outside the evidence folder. Since v1.1.0 the stages live in separate modules: `evidence.py` (acquire, parse), `timeline.py` (validate, correlate, label), `clock.py` (clock models) and `reporting.py` (reports, signatures); `mqtt.py` decodes MQTT from captures and `report_html.py` renders the HTML report. Since v1.2.0 an optional rules stage (`rules.py`) evaluates examiner-supplied detection rules on the finished timeline; it reads the timeline only and never changes labels or validation findings.
+All three entry points call one function, `analyze()` in `pipeline.py`, which runs six stages in order and writes its outputs outside the evidence folder. Since v1.1.0 the stages live in separate modules: `evidence.py` (acquire, parse), `timeline.py` (validate, correlate, label), `clock.py` (clock models) and `reporting.py` (reports, signatures); `mqtt.py` decodes MQTT from captures and `report_html.py` renders the HTML report. Since v1.2.0 an optional rules stage (`rules.py`) evaluates examiner-supplied detection rules on the finished timeline; it reads the timeline only and never changes labels or validation findings. Every run also appends an entry to the case's hash-chained custody log (`custody.py`), which also holds examiner notes.
 
 ![NEXUS-IoT architecture: 6 pipeline stages, 3 entry points](images/architecture.png)
 
@@ -88,7 +89,7 @@ The planned must-have work is complete. Optional extensions, in order of value:
 - [x] **Case management**: saved cases with name, case number, examiner, rules file and analysis history; re-analysis compares hashes with the previous run; delete removes derived outputs only.
 - [x] **Detection rules**: JSON rules file (`match`, `absent_within`, `sequence`, `count_within`) evaluated on the corrected timeline, with findings in every report.
 - [x] **Continuous integration**: GitHub Actions running the analyzer and testbed unit tests on every push.
-- [ ] **Chain-of-custody log and examiner notes**: an append-only per-case log of who analyzed what and when, and notes attached to timeline rows.
+- [x] **Chain-of-custody log and examiner notes**: an append-only, hash-chained per-case log of every analysis (with evidence and report hashes), note, retraction, export, download and deletion, optionally HMAC-signed; notes attach to timeline rows and are retracted, never edited.
 - [ ] **More rule types**: time-of-day windows ("commands at unusual hours") and rules on MQTT client identity.
 - [ ] **Wider protocol coverage**: CoAP or HTTP telemetry, and MQTT 5.
 - [ ] **Real-device validation**: a small physical testbed with independently recorded ground truth.
@@ -145,6 +146,7 @@ NEXUS-IoT is narrow by design: it does one job that general tools leave to the e
 | Labels how well each event is supported | Yes (Confirmed, Single-source, Inferred, Unknown gap) | No | No | No |
 | Flags gaps, conflicts and clock anomalies | Yes | No | No | No |
 | Evidence hashing and signed manifest | Yes (SHA-256, HMAC) | No | Hashes in storage metadata | Yes, with case management |
+| Chain-of-custody log | Yes (hash-chained, HMAC-signed head, examiner notes) | No | No | Yes (case database and reports) |
 | Configurable detection rules | Yes (JSON, 4 rule types) | Display filters only | No (analysis plugins) | Keyword and hash-set hits |
 | Evaluated against known ground truth | Yes (synthetic + Docker testbed) | n/a | n/a | n/a |
 

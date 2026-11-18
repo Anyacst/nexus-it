@@ -68,6 +68,19 @@ class WebUiBase(unittest.TestCase):
         """Count rendered timeline table rows."""
         return page.count(b"<tr id='row-")
 
+    def token(self) -> str:
+        _, _, page = self.request("GET", "/cases")
+        return re.search(rb"name=csrf_token value='([^']+)'", page).group(1).decode()
+
+    def post(self, path: str, fields: dict) -> tuple[int, bytes]:
+        body = urlencode({"csrf_token": self.token(), **fields})
+        status, _, page = self.request("POST", path, body, {"Content-Type": "application/x-www-form-urlencoded"})
+        return status, page
+
+    def case_ids(self) -> list[str]:
+        _, _, page = self.request("GET", "/cases")
+        return [m.decode() for m in re.findall(rb"href='/\?case=([0-9a-f]{20})'", page)]
+
 
 class WebUiTests(WebUiBase):
     def test_filters_and_expandable_rows(self):
@@ -148,15 +161,6 @@ class WebUiTests(WebUiBase):
 class CaseManagementTests(WebUiBase):
     """Saved cases: list, open, re-analyze, rules and delete."""
 
-    def token(self) -> str:
-        _, _, page = self.request("GET", "/cases")
-        return re.search(rb"name=csrf_token value='([^']+)'", page).group(1).decode()
-
-    def post(self, path: str, fields: dict) -> tuple[int, bytes]:
-        body = urlencode({"csrf_token": self.token(), **fields})
-        status, _, page = self.request("POST", path, body, {"Content-Type": "application/x-www-form-urlencoded"})
-        return status, page
-
     def make_evidence(self, name: str) -> Path:
         folder = self.root / name
         folder.mkdir()
@@ -164,10 +168,6 @@ class CaseManagementTests(WebUiBase):
             {"event_id": "l-1", "sequence": 1, "timestamp": 100, "device": "smart-lock", "event": "lock_released"},
         ])
         return folder
-
-    def case_ids(self) -> list[str]:
-        _, _, page = self.request("GET", "/cases")
-        return [m.decode() for m in re.findall(rb"href='/\?case=([0-9a-f]{20})'", page)]
 
     def test_cases_are_listed_opened_and_kept_apart(self):
         status, page = self.post("/analyze", {"evidence": str(self.evidence), "name": "Case <A>", "case_number": "2026-17",
@@ -241,6 +241,63 @@ class CaseManagementTests(WebUiBase):
         self.assertEqual(self.case_ids(), [])
         status, _, _ = self.request("GET", "/report.json")
         self.assertEqual(status, 404)
+
+
+class CustodyWebTests(WebUiBase):
+    """Examiner notes and the custody log through the browser interface."""
+
+    def open_case(self) -> tuple[str, Path]:
+        self.post("/analyze", {"evidence": str(self.evidence), "examiner": "Examiner One"})
+        (case_id,) = self.case_ids()
+        return case_id, self.root / "derived" / "web" / case_id
+
+    def log(self, folder: Path) -> list[dict]:
+        return [json.loads(line) for line in (folder / "custody.jsonl").read_text(encoding="utf-8").splitlines()]
+
+    def test_add_and_retract_note(self):
+        case_id, folder = self.open_case()
+        _, _, page = self.request("GET", f"/?case={case_id}")
+        self.assertIn(b"action=/case/note>", page)
+        self.assertIn(b"<span class=ok>verified</span> (1 entries)", page)
+        status, page = self.post("/case/note", {"case": case_id, "event_id": "b-1", "text": "Door opened <late>"})
+        self.assertEqual(status, 303)
+        entry = self.log(folder)[-1]
+        self.assertEqual((entry["action"], entry["examiner"], entry["details"]["text"]),
+                         ("note_added", "Examiner One", "Door opened <late>"))
+        _, _, page = self.request("GET", f"/?case={case_id}")
+        self.assertIn(b"Door opened &lt;late&gt;", page)
+        self.assertIn(b"Examiner notes (1)", page)
+        self.assertIn(b"Door opened &lt;late&gt;", (folder / "report.html").read_bytes())
+        status, _ = self.post("/case/note/retract", {"case": case_id, "note_seq": str(entry["seq"]), "reason": "wrong door",
+                                                     "examiner": "Examiner Two"})
+        self.assertEqual(status, 303)
+        _, _, page = self.request("GET", f"/?case={case_id}")
+        self.assertIn(b"Retracted in entry 3 by Examiner Two: wrong door", page)
+        self.assertIn(b"(3 entries)", page)
+
+    def test_bad_notes_and_tokens_are_rejected(self):
+        case_id, folder = self.open_case()
+        status, page = self.post("/case/note", {"case": case_id, "event_id": "nope", "text": "x"})
+        self.assertEqual(status, 400)
+        self.assertIn(b"no timeline row with event ID", page)
+        status, page = self.post("/case/note", {"case": "../x", "event_id": "b-1", "text": "x"})
+        self.assertEqual(status, 404)
+        body = urlencode({"csrf_token": "wrong", "case": case_id, "event_id": "b-1", "text": "x"})
+        status, _, _ = self.request("POST", "/case/note", body, {"Content-Type": "application/x-www-form-urlencoded"})
+        self.assertEqual(status, 403)
+        self.assertEqual(len(self.log(folder)), 1)
+
+    def test_downloads_are_logged_and_delete_archives_the_log(self):
+        case_id, folder = self.open_case()
+        self.request("GET", f"/report.json?case={case_id}")
+        entry = self.log(folder)[-1]
+        self.assertEqual((entry["action"], entry["details"]["file"]), ("report_downloaded", "report.json"))
+        self.post("/case/delete", {"case": case_id})
+        archived = list((self.root / "derived" / "web" / "_deleted").glob(f"{case_id}-*.custody.jsonl"))
+        self.assertEqual(len(archived), 1)
+        actions = [json.loads(line)["action"] for line in archived[0].read_text(encoding="utf-8").splitlines()]
+        self.assertEqual(actions, ["analysis", "report_downloaded", "case_deleted"])
+        self.assertEqual(self.case_ids(), [])
 
 
 if __name__ == "__main__":

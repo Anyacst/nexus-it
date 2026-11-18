@@ -23,6 +23,7 @@ from typing import Any, Iterable
 from urllib.parse import urlencode
 
 from . import __version__
+from .custody import CUSTODY_LIMITATION, case_info_from_log
 
 MAX_SVG_MARKS = 2000
 """Upper bound on marks drawn in the SVG timeline; the table always lists every row."""
@@ -125,7 +126,13 @@ td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 td.time{white-space:nowrap;font-variant-numeric:tabular-nums}
 .filters{display:flex;flex-wrap:wrap;gap:.6rem;align-items:end}
 .filters label,label.wide{display:flex;flex-direction:column;font-size:.85rem;gap:.2rem}
-input,select{padding:.55rem;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);font:inherit}
+.retracted{text-decoration:line-through;opacity:.65}
+.notes{border-left:3px solid var(--c-inferred);padding:.2rem .6rem;margin:.4rem 0;background:var(--head)}
+.notes p{margin:.2rem 0;white-space:pre-wrap}
+form.inline{display:flex;flex-wrap:wrap;gap:.4rem;align-items:end;margin:.4rem 0}
+form.inline button{padding:.35rem .8rem}
+.ok{color:var(--c-confirmed);font-weight:700}.bad{color:var(--c-gap);font-weight:700}
+input,select,textarea{padding:.55rem;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);font:inherit}
 input.wide{width:min(700px,90%)}
 label.wide{margin:.3rem 0 .6rem}
 button{padding:.6rem 1.2rem;background:var(--accent);color:var(--accent-fg);border:0;border-radius:6px;font:inherit;cursor:pointer}
@@ -176,6 +183,8 @@ class ReportView:
     links: list[tuple[str, str]] = field(default_factory=list)
     hidden: dict[str, str] = field(default_factory=dict)
     """Extra query parameters kept on every filter link and form (e.g. the selected case)."""
+    csrf_token: str = ""
+    """When set (with a ``case`` in ``hidden``), rows get add-note and retract-note forms."""
 
     def is_filtered(self) -> bool:
         """Return True when any filter is active."""
@@ -450,6 +459,79 @@ def _rule_findings(report: dict, rows: list[dict]) -> str:
     )
 
 
+def _notes_section(rows: list[dict], custody: dict | None) -> str:
+    """List every examiner note with a link to its timeline row."""
+    if not custody:
+        return ""
+    notes = _as_dict(custody.get("notes"))
+    if not notes:
+        return ""
+    row_index = {str(row.get("event_id")): i for i, row in enumerate(rows) if row.get("event_id")}
+    items = []
+    for event_id, entries in notes.items():
+        index = row_index.get(event_id)
+        target = f"<a href='#row-{index}'><code>{_e(event_id)}</code></a>" if index is not None else \
+            f"<code>{_e(event_id)}</code> <span class=muted>(not in the current timeline)</span>"
+        for note in _as_list(entries):
+            text = _as_dict(note.get("details")).get("text", "")
+            cls = " class=retracted" if note.get("retracted") else ""
+            state = " <span class=muted>(retracted)</span>" if note.get("retracted") else ""
+            items.append(f"<li><span{cls}>{_e(text)}</span>{state} <span class='muted small'>— {_e(note.get('examiner', ''))}, "
+                         f"{_e(note.get('time', ''))}, on</span> {target}</li>")
+    return f"<section class=card id=notes><h2>Examiner notes</h2><ul class=issues>{''.join(items)}</ul></section>"
+
+
+def _custody_summary(entry: dict) -> str:
+    """One-line description of a custody entry's details."""
+    d = _as_dict(entry.get("details"))
+    action = entry.get("action")
+    if action == "analysis":
+        changes = len(_as_list(d.get("hash_changes_since_previous_run")))
+        rules = f"; rules SHA-256 {str(d['rules_sha256'])[:12]}…" if d.get("rules_sha256") else ""
+        case = f"case {d['case_number']}; " if d.get("case_number") else ""
+        return (f"{case}{len(_as_list(d.get('evidence_files')))} evidence file(s) hashed; {d.get('timeline_rows', '?')} timeline rows; "
+                f"{changes} hash change(s) since the previous run{rules}")
+    if action == "note_added":
+        return f"Note on {d.get('event_id', '')}"
+    if action == "note_retracted":
+        return f"Retracted note {d.get('note_seq', '')}: {d.get('reason', '')}"
+    if action in ("report_exported", "report_downloaded"):
+        return f"{d.get('file', '')} (SHA-256 {str(d.get('sha256', ''))[:16]}…)"
+    return json.dumps(d, ensure_ascii=False, sort_keys=True)[:300]
+
+
+def _custody_section(custody: dict | None) -> str:
+    """Render the custody verification result and every log entry."""
+    if not custody:
+        return ""
+    check = _as_dict(custody.get("verification"))
+    entries = [e for e in _as_list(custody.get("entries")) if isinstance(e, dict)]
+    if check.get("ok"):
+        signed = f"; signed up to entry {check['signed_seq']}" if check.get("signed_seq") else ""
+        status = f"<p><span class=ok>Verified</span>: {len(entries)} entr{'y' if len(entries) == 1 else 'ies'}, hash chain intact, reports match the last analysis{signed}.</p>"
+    else:
+        status = "<p><span class=bad>Verification failed</span>:</p><ul class=issues>" + \
+            "".join(f"<li>{_e(i)}</li>" for i in _as_list(check.get("issues"))) + "</ul>"
+    status += "".join(f"<p class='note small'>{_e(n)}</p>" for n in _as_list(check.get("notes")))
+    rows = []
+    for e in entries:
+        d = _as_dict(e.get("details"))
+        files = ""
+        if e.get("action") == "analysis" and d.get("evidence_files"):
+            items = "".join(f"<li><code>{_e(f.get('path'))}</code> <span class=hash>{_e(f.get('sha256'))}</span></li>"
+                            for f in _as_list(d.get("evidence_files")) if isinstance(f, dict))
+            files = f"<details class=raw><summary>Evidence file hashes</summary><ul class=ev>{items}</ul></details>"
+        rows.append(
+            f"<tr><td class=num>{_e(e.get('seq'))}</td><td class=time>{_e(e.get('time', ''))}</td><td>{_e(e.get('action', ''))}</td>"
+            f"<td>{_e(e.get('examiner', ''))}<div class='muted small'>{_e(e.get('os_user', ''))}@{_e(e.get('host', ''))}</div></td>"
+            f"<td>{_e(_custody_summary(e))}{files}</td><td><span class=hash>{_e(str(e.get('hash', ''))[:16])}…</span></td></tr>"
+        )
+    table = ("<div class=scroll><table><thead><tr><th>#</th><th>Time (UTC)</th><th>Action</th><th>Examiner</th><th>Details</th>"
+             f"<th>Entry hash</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>") if rows else ""
+    return (f"<section class=card id=custody><h2>Chain of custody</h2>{status}{table}"
+            f"<p class='muted small'>{_e(CUSTODY_LIMITATION)}</p></section>")
+
+
 def _clocks(report: dict) -> str:
     """Render the clock-estimate table."""
     estimates = _as_dict(report.get("clock_estimates"))
@@ -672,7 +754,56 @@ def _raw_value(value: Any) -> str:
     return str(value)
 
 
-def _row_html(index: int, row: dict, interactive: bool) -> str:
+def _note_forms_enabled(view: ReportView | None) -> bool:
+    """True when the web view may show note forms (it has a CSRF token and a case)."""
+    return bool(view is not None and view.csrf_token and view.hidden.get("case"))
+
+
+def _hidden_inputs(view: ReportView, **extra: Any) -> str:
+    """CSRF token, case id and extra hidden fields for a POST form."""
+    fields = {"csrf_token": view.csrf_token, "case": view.hidden.get("case", ""), **extra}
+    return "".join(f"<input type=hidden name='{_e(k)}' value='{_e(v)}'>" for k, v in fields.items())
+
+
+def _note_html(note: dict, view: ReportView | None) -> str:
+    """One examiner note with author and time; retracted notes are struck through with the reason."""
+    details = _as_dict(note.get("details"))
+    who = f"{note.get('examiner', 'unspecified')} ({note.get('os_user', '?')}@{note.get('host', '?')})"
+    meta = f"<div class='muted small'>Note {_e(note.get('seq'))} · {_e(who)} · {_e(note.get('time', ''))}</div>"
+    retraction = _as_dict(note.get("retracted"))
+    if retraction:
+        reason = _as_dict(retraction.get("details")).get("reason", "")
+        return (f"<div class=retracted><p>{_e(details.get('text', ''))}</p></div>{meta}"
+                f"<div class='muted small'>Retracted in entry {_e(retraction.get('seq'))} by {_e(retraction.get('examiner', ''))}: "
+                f"{_e(reason)}</div>")
+    form = ""
+    if _note_forms_enabled(view):
+        form = (f"<form class='inline no-print' method=post action=/case/note/retract>{_hidden_inputs(view, note_seq=note.get('seq'))}"
+                "<input name=examiner maxlength=200 placeholder='Examiner'>"
+                "<input name=reason required maxlength=4000 placeholder='Reason for retracting'><button>Retract</button></form>")
+    return f"<p>{_e(details.get('text', ''))}</p>{meta}{form}"
+
+
+def _row_notes(row: dict, notes: dict[str, list[dict]], view: ReportView | None) -> str:
+    """Examiner notes for a row, plus an add-note form in the web view."""
+    event_id = str(row.get("event_id", ""))
+    items = notes.get(event_id, []) if event_id else []
+    body = "".join(_note_html(n, view) for n in items)
+    form = ""
+    if _note_forms_enabled(view) and event_id:
+        form = (f"<details class=no-print><summary>Add examiner note</summary><form class=inline method=post action=/case/note>"
+                f"{_hidden_inputs(view, event_id=event_id)}<input name=examiner maxlength=200 placeholder='Examiner'>"
+                "<textarea name=text required maxlength=4000 rows=2 cols=40 placeholder='Note'></textarea>"
+                "<button>Add note</button></form></details>")
+    if not body and not form:
+        return ""
+    active = sum(1 for n in items if not n.get("retracted"))
+    title = f"<b>Examiner notes ({active})</b>" if items else ""
+    return f"<div class=notes>{title}{body}{form}</div>" if items else form
+
+
+def _row_html(index: int, row: dict, interactive: bool, notes: dict[str, list[dict]] | None = None,
+              view: ReportView | None = None) -> str:
     """Render one timeline table row with an expandable evidence/raw-field block."""
     label = str(row.get("label", "(no label)"))
     cls = _label_class(label)
@@ -705,11 +836,13 @@ def _row_html(index: int, row: dict, interactive: bool) -> str:
         f"<td class='label lbl-{cls}'>{_e(label)}</td>"
         f"<td><details class=evidence{open_attr}><summary>{summary}</summary><ul class=ev>{items}</ul>"
         f"<details class=raw{raw_open}><summary>Raw row fields</summary><dl class=meta>{raw}</dl></details></details>"
-        f"<div class='muted small'>{_e(uncertainty) if uncertainty else 'Uncertainty not stated.'}</div></td></tr>"
+        f"<div class='muted small'>{_e(uncertainty) if uncertainty else 'Uncertainty not stated.'}</div>"
+        f"{_row_notes(row, notes or {}, view)}</td></tr>"
     )
 
 
-def _timeline_table(rows: list[tuple[int, dict]], total: int, interactive: bool) -> str:
+def _timeline_table(rows: list[tuple[int, dict]], total: int, interactive: bool,
+                    notes: dict[str, list[dict]] | None = None, view: ReportView | None = None) -> str:
     """Render the full timeline table for the given (index, row) pairs."""
     head = "<section class=card id=timeline><h2>Reconstructed timeline</h2>"
     if not rows:
@@ -719,7 +852,7 @@ def _timeline_table(rows: list[tuple[int, dict]], total: int, interactive: bool)
         "<p class='muted small no-print'>Click a row's evidence summary to expand the raw supporting evidence and fields.</p>"
         if interactive else ""
     )
-    body = "".join(_row_html(index, row, interactive) for index, row in rows)
+    body = "".join(_row_html(index, row, interactive, notes, view) for index, row in rows)
     return (
         f"{head}{hint}<div class=scroll><table><thead><tr><th>#</th><th>UTC timestamp / range</th><th>Event</th>"
         "<th>Device / source</th><th>Label</th><th>Supporting evidence and uncertainty</th></tr></thead>"
@@ -781,6 +914,7 @@ def render_report_body(
     case_info: dict | None = None,
     view: ReportView | None = None,
     generated: str | None = None,
+    custody: dict | None = None,
 ) -> str:
     """Render the report sections (no ``<html>`` wrapper).
 
@@ -793,6 +927,9 @@ def render_report_body(
     indexed = list(enumerate(all_rows))
     if view is not None:
         indexed = [(i, row) for i, row in indexed if row_matches(row, view)]
+    if custody and not case_info:
+        case_info = case_info_from_log(_as_list(custody.get("entries")))
+    notes = _as_dict(custody.get("notes")) if custody else {}
     generated = generated or datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     sections = [
         _header(report, title or DEFAULT_TITLE, case_info, generated),
@@ -803,10 +940,12 @@ def render_report_body(
     sections += [
         _svg_timeline(indexed, view),
         _rule_findings(report, all_rows),
+        _notes_section(all_rows, custody),
         _manifest(report),
         _validation(report),
         _clocks(report),
-        _timeline_table(indexed, len(all_rows), view is not None),
+        _timeline_table(indexed, len(all_rows), view is not None, notes, view),
+        _custody_section(custody),
         _limitations(report),
         f"<footer class='muted small'>Generated by NEXUS-IoT {_e(__version__)} at {_e(generated)}. "
         "This report reflects the supplied evidence only.</footer>",
@@ -821,6 +960,7 @@ def render_report(
     case_info: dict | None = None,
     nonce: str | None = None,
     view: ReportView | None = None,
+    custody: dict | None = None,
 ) -> str:
     """Render ``report`` (a parsed ``report.json``) as one self-contained HTML document.
 
@@ -828,7 +968,7 @@ def render_report(
     values shown in the header. ``nonce`` and ``view`` are used by the local web
     interface; the default output needs neither and contains no script.
     """
-    body = render_report_body(report, title=title, case_info=case_info, view=view)
+    body = render_report_body(report, title=title, case_info=case_info, view=view, custody=custody)
     return render_document(title or DEFAULT_TITLE, body, nonce=nonce)
 
 

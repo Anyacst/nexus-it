@@ -8,10 +8,12 @@ CSP nonce, and filtering is done server side from GET query parameters.
 
 Cases: each analyzed evidence folder is one case, stored under
 ``derived/web/<case id>/`` with its reports and a ``case.json`` holding the
-examiner's metadata. The case id is derived from the evidence path, so
-re-analyzing the same folder updates the same case and compares its hashes
-with the previous run. Deleting a case removes only its derived outputs; the
-evidence folder is never written to or deleted.
+examiner's metadata, and a hash-chained ``custody.jsonl`` that records every
+analysis, examiner note, note retraction and report download. The case id is
+derived from the evidence path, so re-analyzing the same folder updates the
+same case and compares its hashes with the previous run. Deleting a case
+removes only its derived outputs (its custody log is archived under
+``derived/web/_deleted/`` first); the evidence folder is never written to.
 """
 from __future__ import annotations
 
@@ -27,6 +29,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlsplit
 
+from .custody import CUSTODY_FILE, add_note, append_entry, custody_view, retract_note
 from .pipeline import analyze, utc_now
 from .report_html import ReportView, css_sha256, render_document, render_report, render_report_body, safe_filename
 
@@ -218,6 +221,11 @@ def case_toolbar(csrf_token: str, case: dict) -> str:
                ("First analyzed", case.get("created_at", "")), ("Last analyzed", case.get("updated_at", "")),
                ("Analyses run", case.get("analysis_count", ""))]
     items = "".join(f"<dt>{_e(k)}</dt><dd>{_e(v)}</dd>" for k, v in details if v != "")
+    check = case.get("custody_check")
+    if check is not None:
+        state = ("<span class=ok>verified</span>" if check["ok"] else
+                 "<span class=bad>FAILED</span> — " + _e("; ".join(check["issues"][:3])))
+        items += f"<dt>Chain of custody</dt><dd>{state} ({check['entries']} entries) · <a href='#custody'>view log</a></dd>"
     delete = (
         "<form method=post action=/case/delete><input type=hidden name=csrf_token value='{token}'>"
         "<input type=hidden name=case value='{case}'><button class=secondary>Delete case outputs</button> "
@@ -230,12 +238,13 @@ def case_toolbar(csrf_token: str, case: dict) -> str:
 
 
 def page_html(csrf_token: str, nonce: str, report: dict | None = None, view: ReportView | None = None,
-              message_html: str = "", case: dict | None = None, cases: list[dict] | None = None) -> str:
+              message_html: str = "", case: dict | None = None, cases: list[dict] | None = None,
+              custody: dict | None = None) -> str:
     """Build the full web page: banner, message, then either an open case or the case list and new-case form."""
     if report is not None:
         top = case_toolbar(csrf_token, case) if case else analyze_form(csrf_token)
         content = render_report_body(report, title="Incident timeline report", case_info=case_info(case or {}),
-                                     view=view or ReportView(links=case_links(None)))
+                                     view=view or ReportView(links=case_links(None)), custody=custody)
         body = BANNER_HTML + message_html + top + content
     else:
         body = BANNER_HTML + message_html + analyze_form(csrf_token) + cases_table(cases or [], None)
@@ -243,9 +252,10 @@ def page_html(csrf_token: str, nonce: str, report: dict | None = None, view: Rep
 
 
 def write_html_report(report: dict, output_dir: Path, case: dict | None = None) -> Path:
-    """Write the static ``report.html`` for ``report`` into ``output_dir`` and return its path."""
+    """Write the static ``report.html`` (with notes and custody log) into ``output_dir`` and return its path."""
     path = output_dir / "report.html"
-    path.write_text(render_report(report, case_info=case_info(case or {})), encoding="utf-8")
+    path.write_text(render_report(report, case_info=case_info(case or {}), custody=custody_view(output_dir)),
+                    encoding="utf-8")
     return path
 
 
@@ -291,7 +301,13 @@ def create_server(host: str = "127.0.0.1", port: int = 8765, project_root: Path 
             """Render and send a page with a fresh style nonce (the case list when no report is given)."""
             nonce = secrets.token_urlsafe(16)
             cases = list_cases(derived) if report is None else None
-            html = page_html(state["csrf"], nonce, report, view, message_html, case, cases)
+            custody = None
+            if report is not None and case is not None:
+                custody = custody_view(derived / case["id"])
+                case = {**case, "custody_check": custody["verification"] if custody else None}
+                if view is not None:
+                    view.csrf_token = state["csrf"]
+            html = page_html(state["csrf"], nonce, report, view, message_html, case, cases, custody)
             self.send(html.encode("utf-8"), "text/html; charset=utf-8", status, nonce=nonce)
 
         def local_request(self) -> bool:
@@ -362,6 +378,12 @@ def create_server(host: str = "127.0.0.1", port: int = 8765, project_root: Path 
                 body = target.read_bytes()
             except OSError:
                 return self.send(b"Report file not found", "text/plain", 404)
+            if (folder / CUSTODY_FILE).exists():
+                try:
+                    append_entry(folder, "report_downloaded", {"file": name, "sha256": hashlib.sha256(body).hexdigest()},
+                                 (load_case(derived, case_id) or {}).get("examiner", ""))
+                except ValueError:
+                    pass  # a damaged log is reported on the case page; the download itself still works
             if name == "report.html":
                 download = f"nexus-iot-report-{safe_filename(case_id)}.html"
                 csp = (f"default-src 'none'; style-src {css_sha256()}; img-src data:; form-action 'none'; "
@@ -386,7 +408,7 @@ def create_server(host: str = "127.0.0.1", port: int = 8765, project_root: Path 
             if not self.local_request():
                 return self.send(b"Local requests only", "text/plain", 403)
             path = urlsplit(self.path).path
-            if path not in {"/analyze", "/case/delete"}:
+            if path not in {"/analyze", "/case/delete", "/case/note", "/case/note/retract"}:
                 return self.send(b"Not found", "text/plain", 404)
             try:
                 fields = self.read_form()
@@ -394,6 +416,8 @@ def create_server(host: str = "127.0.0.1", port: int = 8765, project_root: Path 
                     return None
                 if path == "/case/delete":
                     return self.delete_case(fields)
+                if path in {"/case/note", "/case/note/retract"}:
+                    return self.note(path, fields)
                 raw = fields.get("evidence", [""])[0].strip()
                 evidence = Path(raw).expanduser().resolve()
                 if not raw or not evidence.is_dir():
@@ -408,7 +432,7 @@ def create_server(host: str = "127.0.0.1", port: int = 8765, project_root: Path 
                         raise ValueError("Rules file does not exist")
                 case_id = case_id_for(evidence)
                 out = derived / case_id
-                report = analyze(evidence, out, rules_path=rules)
+                report = analyze(evidence, out, rules_path=rules, examiner=meta["examiner"], case_number=meta["case_number"])
                 case = save_case(derived, evidence, meta, report, rules)
                 write_html_report(report, out, case)
                 with state["lock"]:
@@ -424,13 +448,51 @@ def create_server(host: str = "127.0.0.1", port: int = 8765, project_root: Path 
             folder = derived / case_id
             if case is None or folder.parent != derived or folder.is_symlink():
                 return self.send_page(404, message_html="<div class=card><b>Case not found.</b></div>")
+            if (folder / CUSTODY_FILE).exists():
+                try:
+                    append_entry(folder, "case_deleted", {"case_id": case_id, "evidence_directory": case.get("evidence", "")},
+                                 case.get("examiner", ""))
+                except ValueError:
+                    pass  # archive the damaged log as it is
+                archive = derived / "_deleted"
+                archive.mkdir(exist_ok=True)
+                stamp = utc_now().replace(":", "").replace("-", "").split(".")[0]
+                shutil.copy2(folder / CUSTODY_FILE, archive / f"{case_id}-{stamp}.custody.jsonl")
             shutil.rmtree(folder)
             with state["lock"]:
                 if state["active"] == case_id:
                     state["active"] = None
             name = case.get("name") or case_id
             self.send_page(message_html=f"<div class='card note'>Deleted the derived outputs of case <b>{_e(name)}</b>. "
-                                        "The evidence folder was not changed.</div>")
+                                        "The evidence folder was not changed; the custody log was archived in "
+                                        "derived/web/_deleted/.</div>")
+
+        def note(self, path: str, fields: dict[str, list[str]]) -> None:
+            """Add or retract an examiner note, refresh report.html, then redirect back to the case."""
+            case_id = fields.get("case", [""])[0]
+            case = load_case(derived, case_id)
+            if case is None:
+                return self.send_page(404, message_html="<div class=card><b>Case not found.</b></div>")
+            folder = derived / case_id
+            examiner = _clean_param(fields.get("examiner"), MAX_CASE_FIELD) or case.get("examiner", "")
+            try:
+                if path == "/case/note":
+                    event_id = fields.get("event_id", [""])[0]
+                    add_note(folder, event_id, fields.get("text", [""])[0], examiner)
+                else:
+                    seq = int(fields.get("note_seq", ["0"])[0])
+                    event_id = retract_note(folder, seq, fields.get("reason", [""])[0], examiner)["details"]["event_id"]
+                report = json.loads((folder / "report.json").read_text(encoding="utf-8"))
+            except (ValueError, OSError) as e:
+                return self.send_page(400, message_html=f"<div class=card><b>Could not save the note:</b> {_e(e)}</div>")
+            write_html_report(report, folder, case)
+            index = next((i for i, r in enumerate(report.get("timeline", [])) if r.get("event_id") == event_id), None)
+            location = "/?" + urlencode({"case": case_id}) + (f"#row-{index}" if index is not None else "")
+            self.send_response(303)
+            self.send_header("Location", location)
+            self.send_header("Content-Length", "0")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
 
     return ThreadingHTTPServer((host, port), Handler)
 

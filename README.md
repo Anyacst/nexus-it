@@ -60,6 +60,19 @@ Rules are JSON (`{"rules": [...]}`). Each has an `id`, `title`, `type`, optional
 
 A matcher without `label` only counts Confirmed and Single-source rows, so an Inferred event never satisfies an expectation and a gap is never mistaken for an event. Rules run on the clock-corrected times; a finding that cites uncalibrated rows says so, because its time window may not hold. Findings are leads for review, not conclusions.
 
+## Chain of custody and examiner notes
+
+Every case output folder has an append-only `custody.jsonl`. Each entry records the time, the action, the examiner, the OS user and host, the tool version and what was done, and carries the SHA-256 of the entry before it, so changing, removing or reordering any entry breaks the chain. An `analysis` entry stores the SHA-256 of every evidence file read and of the reports written, so the hash history survives later re-analysis.
+
+```bash
+python3 -m nexus_iot analyze /cases/case-001 --out /cases/case-001-derived --examiner "A. Examiner" --case-number C-001 --signing-key /secure/nexus-hmac.key
+python3 -m nexus_iot note /cases/case-001-derived --event door-sensor-00012 --text "Door opened while occupant was away" --examiner "A. Examiner"
+python3 -m nexus_iot note /cases/case-001-derived --retract 2 --text "Wrong row" --examiner "A. Examiner"
+python3 -m nexus_iot custody /cases/case-001-derived --key /secure/nexus-hmac.key     # list and verify; exit code 1 on failure
+```
+
+Notes attach to a timeline row by event ID and are entries in the same log: a note is never edited or deleted, only retracted with a reason, so the history stays visible. `custody` verifies the chain, checks that `report.json`, `report.md` and `evidence_manifest.json` still match the last analysis, and, with the key, checks `custody.sig`, an HMAC of the latest entry. Without the key a person with write access could rebuild the whole log; the signature closes that gap up to the last signed entry. The HTML report shows notes on their rows, an examiner-notes list and the full custody log with its verification result; `export-html` records each export in the log.
+
 ## Browser interface
 
 Start the local browser interface:
@@ -70,7 +83,7 @@ python3 -m nexus_iot serve
 
 Open `http://127.0.0.1:8765`, enter the full path to a supplied evidence directory and, optionally, a case name, case number, examiner and rules file, then inspect its timeline and findings. Filter rows by device/source, label or free text (plain `GET` parameters such as `/?case=<id>&label=Confirmed&device=sensor-A&q=boot`), click a row to see its supporting evidence, and download the reports (`/report.html?case=<id>`, `.json`, `.md`).
 
-Every analyzed folder is saved as a case under `derived/web/<case-id>/` with its reports and a `case.json` (name, number, examiner, evidence path, rules file, first and last analysis time, analysis count). The home page lists all cases. An open case can be re-analyzed with one click: the same folder keeps the same case, and file hashes are compared with the previous run, so changes to the evidence since then are reported. *Delete case outputs* removes only that case's derived folder, never the evidence.
+Every analyzed folder is saved as a case under `derived/web/<case-id>/` with its reports, its custody log and a `case.json` (name, number, examiner, evidence path, rules file, first and last analysis time, analysis count). The home page lists all cases. An open case shows whether its custody log verifies; each timeline row has an *Add examiner note* form and each note a *Retract* form, and report downloads are recorded in the log. An open case can be re-analyzed with one click: the same folder keeps the same case, and file hashes are compared with the previous run, so changes to the evidence since then are reported. *Delete case outputs* removes only that case's derived folder, never the evidence; its custody log is first closed with a `case_deleted` entry and archived under `derived/web/_deleted/`.
 
 The server binds to loopback only, checks Host and Origin, uses a CSRF token on every form and a strict content security policy. Stop with Ctrl+C.
 
@@ -95,7 +108,7 @@ python3 -m testbed.runner.benchmark --seeds 1 2 3 --scenarios all --duration 60
 nexus_iot/       evidence.py (acquisition, hashing, parsing), clock.py (clock models),
                  timeline.py (validation, correlation, labels), reporting.py (reports, signatures),
                  pipeline.py (analyze), capture.py (PCAP/PCAPNG), mqtt.py (MQTT decoding),
-                 rules.py (detection rules), report_html.py, web.py (browser UI and cases),
+                 rules.py (detection rules), custody.py (custody log, notes), report_html.py, web.py (browser UI and cases),
                  evaluate.py, scenarios.py, __main__.py (CLI)
 rules/           example detection rules (smart_home.json)
 tests/           standard-library unit and integration tests
@@ -202,7 +215,7 @@ The benchmark has ten deterministic cases, including four seeded tamper cases, t
 
 ## Tests
 
-The project uses Python's built-in `unittest`; no `pip install` step is required. The suite exercises evidence hashing and preservation, prior-hash changes, event labels, piecewise clock steps, gaps, inferred events, manifest signatures, malformed inputs, PCAP and PCAPNG parsing/aggregation, MQTT decoding and TCP reassembly, detection rules, the HTML report and web UI (including escaping of untrusted strings), case management, the synthetic evaluation, output-path safety, and the protected local web workflow.
+The project uses Python's built-in `unittest`; no `pip install` step is required. The suite exercises evidence hashing and preservation, prior-hash changes, event labels, piecewise clock steps, gaps, inferred events, manifest signatures, malformed inputs, PCAP and PCAPNG parsing/aggregation, MQTT decoding and TCP reassembly, detection rules, the custody log and examiner notes (including tamper detection), the HTML report and web UI (including escaping of untrusted strings), case management, the synthetic evaluation, output-path safety, and the protected local web workflow.
 
 ```bash
 python3 -m unittest discover -s tests -t . -v            # analyzer
