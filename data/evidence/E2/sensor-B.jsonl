@@ -1,3 +1,0 @@
-{"device": "sensor-B", "event": "alert", "event_id": "ev-003", "sequence": 1, "timestamp": 1794000001.0}
-{"device": "sensor-B", "event": "telemetry", "event_id": "ev-005", "sequence": 2, "timestamp": 1794000004.0}
-{"device": "sensor-B", "event": "recovery", "event_id": "ev-007", "sequence": 3, "timestamp": 1794000008.0}

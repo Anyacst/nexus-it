@@ -1,5 +1,0 @@
-{"event": "boot", "event_id": "ev-001", "peer": "sensor-A", "sequence": 1, "timestamp": 1794000000.0}
-{"event": "auth_fail", "event_id": "ev-002", "peer": "sensor-A", "sequence": 2, "timestamp": 1794000002.0}
-{"event": "telemetry", "event_id": "ev-005", "peer": "sensor-B", "sequence": 5, "timestamp": 1794000006.0}
-{"event": "link_down", "event_id": "ev-006", "peer": "sensor-A", "sequence": 6, "timestamp": 1794000008.0}
-{"event": "recovery", "event_id": "ev-007", "peer": "sensor-B", "sequence": 7, "timestamp": 1794000010.0}

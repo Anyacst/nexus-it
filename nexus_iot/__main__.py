@@ -5,6 +5,7 @@ import argparse
 import json
 from pathlib import Path
 
+from . import __version__
 from .evaluate import run
 from .pipeline import analyze, verify_manifest
 from .report_html import case_info_from, render_report
@@ -20,6 +21,7 @@ def _add_case_arguments(parser: argparse.ArgumentParser) -> None:
 def build_parser() -> argparse.ArgumentParser:
     """Build the ``nexus-iot`` argument parser."""
     p = argparse.ArgumentParser(prog="nexus-iot", description="Local reconstruction of IoT incidents from supplied forensic evidence")
+    p.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
 
     a = sub.add_parser("analyze", help="analyze supplied JSONL, PCAP, or PCAPNG files")
@@ -42,7 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument("signature", type=Path)
     v.add_argument("--key", required=True, type=Path)
 
-    e = sub.add_parser("evaluate", help="regenerate synthetic E1-E7 evidence and run the benchmark")
+    e = sub.add_parser("evaluate", help="generate the ten synthetic cases (E1-E7, T1-T3) and run the benchmark")
     e.add_argument("--root", type=Path, default=Path.cwd())
     e.add_argument("--regenerate", action="store_true", help="replace a verified generated dataset after a generator-version change")
 

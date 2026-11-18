@@ -1,64 +1,82 @@
 # NEXUS-IoT Incident Reconstruction
 
-A local Python research application that builds a reviewable timeline from supplied IoT device logs and gateway captures. It performs read-only acquisition, hashes inputs, validates records and clocks, correlates matching observations, marks bounded hypotheses, and writes JSON and Markdown reports.
+A local Python research application that builds a reviewable timeline from supplied IoT device logs and gateway captures. It performs read-only acquisition, hashes inputs, validates records and clocks, decodes MQTT from packet captures, correlates matching observations, marks bounded hypotheses, and writes JSON, Markdown and self-contained HTML reports.
 
-**It does not collect from live devices or networks.** It has no third-party runtime dependencies and has been designed for controlled datasets and examiner-supplied files, not production forensic certification.
+**It does not collect from live devices or networks.** It has no third-party runtime dependencies and has been designed for controlled datasets and examiner-supplied files, not production forensic certification. A separate Docker testbed ([`testbed/`](testbed/README.md)) generates realistic multi-device evidence with known ground truth for evaluation.
 
-## Quick start (Windows PowerShell)
+## Quick start
 
-From the project folder:
+From the project folder (Python 3.10+, standard library only). On Windows use `python` instead of `python3`, or `.\run.ps1`; on macOS/Linux `./run.sh` is a shortcut for `python3 -m nexus_iot`.
 
-```powershell
-python -m nexus_iot evaluate
-python -m unittest discover -v
+```bash
+python3 -m nexus_iot evaluate                       # synthetic benchmark (10 cases)
+python3 -m unittest discover -s tests -t . -v       # tests
 ```
 
-The first command creates synthetic `data/synthetic/evidence/` cases and separate ground truth under `data/synthetic/ground_truth/`. Evaluation reports are written under `derived/evaluation/`. The generator refuses to write into an unmarked or modified synthetic-data folder; it never touches legacy `data/evidence/` or `sample_inputs/`. If a future generator update requires replacing a verified generated dataset, use `python -m nexus_iot evaluate --regenerate`; this refuses unmarked or modified contents.
+The first command creates synthetic `data/synthetic/evidence/` cases and separate ground truth under `data/synthetic/ground_truth/`. Evaluation reports are written under `derived/evaluation/`. The generator refuses to write into an unmarked or modified synthetic-data folder and never touches `sample_inputs/`. If a future generator update requires replacing a verified generated dataset, use `python3 -m nexus_iot evaluate --regenerate`; this refuses unmarked or modified contents.
 
 Analyze your own evidence folder:
 
-```powershell
-python -m nexus_iot analyze "D:\cases\case-001" --out "D:\cases\case-001-derived"
+```bash
+python3 -m nexus_iot analyze /cases/case-001 --out /cases/case-001-derived --case-number C-001 --examiner "A. Examiner"
 ```
 
 The output path must be outside the evidence folder. Each input is copied to a temporary analysis snapshot while it is hashed; parsing uses those snapshot bytes, and the temporary copies are removed when the run ends. The source files are never edited. Reuse the same output folder on later runs to compare file hashes with the previous project manifest.
 
+The output folder receives `evidence_manifest.json`, `report.json`, `report.md` and `report.html`. The HTML report is a single self-contained file (no scripts, no external resources) with the case header, evidence hashes, validation findings, clock estimates, an SVG timeline with one lane per device, and the full timeline table; print it to PDF from a browser for a paper copy. `--case-number` and `--examiner` only appear in the HTML header. Re-render a report later with:
+
+```bash
+python3 -m nexus_iot export-html /cases/case-001-derived/report.json --out case-001.html
+```
+
 To sign and later verify a manifest, provide an externally managed secret of at least 32 bytes:
 
-```powershell
-python -m nexus_iot analyze "D:\cases\case-001" --out "D:\cases\case-001-derived" --signing-key "D:\secure\nexus-hmac.key"
-python -m nexus_iot verify-manifest "D:\cases\case-001-derived\evidence_manifest.json" "D:\cases\case-001-derived\evidence_manifest.sig" --key "D:\secure\nexus-hmac.key"
+```bash
+python3 -m nexus_iot analyze /cases/case-001 --out /cases/case-001-derived --signing-key /secure/nexus-hmac.key
+python3 -m nexus_iot verify-manifest /cases/case-001-derived/evidence_manifest.json /cases/case-001-derived/evidence_manifest.sig --key /secure/nexus-hmac.key
 ```
 
 Keep that secret separately from the evidence and reports. HMAC signatures detect edits when the verification key is trusted; because HMAC is a shared secret, they do not establish who created a manifest or provide non-repudiation.
 
 Start the local browser interface:
 
-```powershell
-python -m nexus_iot serve
+```bash
+python3 -m nexus_iot serve
 ```
 
-Open `http://127.0.0.1:8765`, enter the full path to a supplied evidence directory, then inspect its timeline and findings. The server binds to loopback only. It creates `derived/web/<case-key>/` reports; using the same evidence path reuses that case’s prior hash manifest. Stop with Ctrl+C.
+Open `http://127.0.0.1:8765`, enter the full path to a supplied evidence directory, then inspect its timeline and findings. Filter rows by device/source, label or free text (plain `GET` parameters such as `/?label=Confirmed&device=sensor-A&q=boot`), click a row to see its supporting evidence, and download the HTML report from `/report.html`. The server binds to loopback only, checks Host and Origin, uses a CSRF token and a strict content security policy. It creates `derived/web/<case-key>/` reports; using the same evidence path reuses that case's prior hash manifest. Stop with Ctrl+C.
 
 Example capture input: [`sample_inputs/gateway-demo.pcap`](sample_inputs/gateway-demo.pcap). Analyze it with:
 
-```powershell
-python -m nexus_iot analyze sample_inputs --out derived/capture-demo
+```bash
+python3 -m nexus_iot analyze sample_inputs --out derived/capture-demo
+```
+
+## Docker testbed
+
+[`testbed/`](testbed/README.md) runs five simulated MQTT devices, a Mosquitto broker, a gateway logger and tcpdump in a closed Docker network, injects faults (disconnection, clock step and drift, capture gap, post-collection tampering), collects each run as a case folder with separate ground truth, and scores it. A multi-seed benchmark aggregates the results:
+
+```bash
+python3 -m testbed.runner.run_scenario all --analyze
+python3 -m testbed.runner.benchmark --seeds 1 2 3 --scenarios all --duration 60
 ```
 
 ## Project layout
 
 ```text
-nexus_iot/       acquisition, capture parsing, validation, reconstruction, CLI, web UI
+nexus_iot/       evidence.py (acquisition, hashing, parsing), clock.py (clock models),
+                 timeline.py (validation, correlation, labels), reporting.py (reports, signatures),
+                 pipeline.py (analyze), capture.py (PCAP/PCAPNG), mqtt.py (MQTT decoding),
+                 report_html.py, web.py, evaluate.py, scenarios.py, __main__.py (CLI)
 tests/           standard-library unit and integration tests
-data/synthetic/evidence/      generated E1-E7 test evidence (not real device data)
-data/synthetic/ground_truth/  separate scenario truth used only by evaluate.py
-data/evidence/                retained legacy prototype fixtures; evaluator does not use or overwrite it
+testbed/         Docker simulation, scenario runner, benchmark and their tests
+docs/            project documentation and diagrams
+data/synthetic/  generated E1-E7 and T1-T3 evidence plus separate ground truth (not real device data)
 sample_inputs/   tiny synthetic PCAP example
 derived/         generated manifests, timelines, reports, and benchmark metrics
 ```
 
-Within `nexus_iot/pipeline.py`, the stages are kept as separate functions: `acquire`, `parse_time`/`_load_evidence`, `validate`, `_offset_estimates`, `_timeline`, and `_write_reports`. `capture.py` handles PCAP/PCAPNG separately; `scenarios.py` and `evaluate.py` keep testbed generation and scoring out of the evidence pipeline.
+`nexus_iot.pipeline.analyze` wires the stages together: `acquire` and `_load_evidence` (evidence.py), `validate` and `_timeline` (timeline.py), `_offset_estimates` (clock.py) and `_write_reports` (reporting.py); every stage name stays importable from `nexus_iot.pipeline`. `scenarios.py` and `evaluate.py` keep synthetic generation and scoring out of the evidence pipeline.
 
 ## Input format
 
@@ -66,7 +84,7 @@ Place evidence in a folder, optionally in subfolders. Supported files:
 
 - UTF-8 JSON Lines: one JSON object per line. A device record needs `timestamp`, `device`, and a non-empty `event`. Use globally unique `event_id` values when records across files describe the same event; `sequence` is useful for gap detection. `source_id` can name an originating logger independently of its filename.
 - A gateway JSONL filename must start with `gateway`; gateway records need `timestamp` and `event`, and can include `event_id`, `sequence`, and `peer`.
-- Classic PCAP and PCAPNG captures are parsed as gateway evidence. Packet headers are summarized; payload bytes are not retained. Supported link layers are Ethernet (including VLAN tags), raw IP, and Linux cooked v1/v2. Repeated identical flows in one-second buckets are aggregated and shown with packet counts and timestamp ranges.
+- Classic PCAP and PCAPNG captures are parsed as gateway evidence. Packet headers are summarized; payload bytes are not retained, except that MQTT 3.1.1 traffic is decoded (see below). Supported link layers are Ethernet (including VLAN tags), raw IP, and Linux cooked v1/v2. Repeated identical flows in one-second buckets are aggregated and shown with packet counts and timestamp ranges.
 
 `timestamp` may be Unix seconds (integer or float) or an ISO-8601 string with an explicit timezone, such as `2026-11-10T09:30:00+05:30`. Naive date-time strings are rejected as ambiguous.
 
@@ -89,7 +107,9 @@ Optional `devices.json` supports device IP mappings and explicit flow-correlatio
 }
 ```
 
-Rules are explicit analysis assumptions, not automatic protocol interpretation. Payloads are not decoded, so a flow match supports only the configured network-pattern claim.
+Rules are explicit analysis assumptions, not automatic protocol interpretation. A flow match supports only the configured network-pattern claim.
+
+**MQTT decoding.** TCP streams on MQTT ports (default 1883; override with `"mqtt_ports": [1883, ...]` in `devices.json`) are reassembled per direction and decoded (CONNECT client ID, PUBLISH topic/QoS/packet ID, PUBACK, SUBSCRIBE, DISCONNECT). A client-to-broker PUBLISH whose JSON payload carries string `event_id`, `event` and `device` fields becomes an independent gateway-clock witness of that event, so a device event logged by the device, the gateway log and the capture can be supported by three sources. Only those parsed fields are kept, not raw payload bytes. Broker-to-subscriber copies are not counted twice. A QoS 1/2 PUBLISH the broker never acknowledged is reported as a finding, not as an event (it may be a retransmit on a dead connection). A topic that disagrees with the payload, or a client address that disagrees with `device_ips`, is kept and reported. CONNECT, DISCONNECT and SUBSCRIBE appear as `mqtt_*` session rows and are excluded from event scoring. Capture time is network delivery time, not device event time.
 
 Malformed JSON rows, invalid timestamps, invalid fields, unsupported or corrupt capture data, missing files from a previous manifest, and changed hashes are reported. Valid records in other files continue to be analyzed when one input is malformed.
 
@@ -98,9 +118,9 @@ Malformed JSON rows, invalid timestamps, invalid fields, unsupported or corrupt 
 1. **Acquire:** enumerate supplied JSONL, PCAP, and PCAPNG files; copy them into a temporary snapshot, record relative path, source folder, collection time, size, and SHA-256, and flag detectable source changes during the copy.
 2. **Preserve:** leave source bytes untouched and write derived outputs elsewhere. On repeated analysis using the same output folder, compare current hashes with the previous manifest.
 3. **Validate:** report malformed rows, file-order timestamp regressions, duplicate or missing sequence values, conflicting event claims, variable clock offsets, and changes relative to the previous hash manifest.
-4. **Correlate:** match shared event IDs and estimate per-source clock offset and linear drift from event-name- and peer-matched gateway/device anchors. Corrections require at least three anchors and a stable residual; otherwise the offset remains diagnostic and is not applied. Explicit capture-flow rules can add packet support.
-5. **Reconstruct:** produce confirmed, single-source, inferred, network observation, and unknown-gap rows. Packet observations remain separate unless a configured flow-correlation rule matches a device event.
-6. **Report:** write `evidence_manifest.json`, `report.json`, and readable `report.md`. If `--signing-key` is provided, also write detached `evidence_manifest.sig`.
+4. **Correlate:** match shared event IDs and estimate per-source clock offset and linear drift from event-name- and peer-matched gateway/device anchors. Corrections require at least three anchors and a stable residual; otherwise the offset remains diagnostic and is not applied. Explicit capture-flow rules and decoded MQTT PUBLISH messages can add capture support.
+5. **Reconstruct:** produce confirmed, single-source, inferred, network observation, and unknown-gap rows. Packet observations remain separate unless a configured flow-correlation rule or a decoded MQTT PUBLISH matches a device event.
+6. **Report:** write `evidence_manifest.json`, `report.json`, readable `report.md` and, from the CLI, the self-contained `report.html`. If `--signing-key` is provided, also write detached `evidence_manifest.sig`.
 
 ## Event labels
 
@@ -143,7 +163,7 @@ The benchmark has ten deterministic cases, including four seeded tamper cases, t
 
 - Hashes establish the bytes seen when calculated. A changed hash against a prior output manifest indicates byte changes since that recorded run, assuming the prior manifest is trustworthy. Hashes do not prove pre-acquisition integrity, chain of custody, authorship, or authenticity.
 - An edited or inserted record may evade checks if it preserves event IDs, sequence metadata, timing patterns, and cross-source agreement. A first-run hash alone cannot reveal previous edits.
-- Classic PCAP and PCAPNG support is intentionally narrow: Ethernet, raw IP, and Linux cooked v1/v2; packet headers only. No protocol payload parsing, TCP stream reconstruction, or arbitrary link type support. Capture bytes are read block by block. Repeated identical header flows in each one-second bucket are summarized to reduce timeline size; the analyzer still retains parsed event rows and reports, so very large or high-cardinality captures may require substantial memory.
+- Classic PCAP and PCAPNG support is intentionally narrow: Ethernet, raw IP, and Linux cooked v1/v2; packet headers only. Payloads are decoded only for MQTT 3.1.1 on configured ports; other protocols are headers only, and arbitrary link types are unsupported. TCP reassembly stops at a capture gap and reports it. Capture bytes are read block by block. Repeated identical header flows in each one-second bucket are summarized to reduce timeline size; the analyzer still retains parsed event rows and reports, so very large or high-cardinality captures may require substantial memory.
 - Clock models use at most one inferred step boundary and two linear segments. More complex clock behavior, inaccurate gateway time, or a coincidental data pattern can make the fitted correction wrong; the report records the model and uncertainty so an examiner can review it.
 - Device IP mapping is descriptive only. The application does not infer device identity from encrypted traffic or MAC/IP addresses alone.
 - The local web UI accepts only loopback binds/requests, checks the Host and Origin, uses a per-process CSRF token, and sets a restrictive content security policy. It has no user authentication and is for a single-user local demonstration.
@@ -151,8 +171,14 @@ The benchmark has ten deterministic cases, including four seeded tamper cases, t
 
 ## Tests
 
-The project uses Python’s built-in `unittest`; no `pip install` step is required. The suite exercises evidence hashing and preservation, prior-hash changes, event labels, piecewise clock steps, gaps, inferred events, manifest signatures, malformed inputs, PCAP and PCAPNG parsing/aggregation, the synthetic evaluation, output-path safety, and the protected local web workflow.
+The project uses Python's built-in `unittest`; no `pip install` step is required. The suite exercises evidence hashing and preservation, prior-hash changes, event labels, piecewise clock steps, gaps, inferred events, manifest signatures, malformed inputs, PCAP and PCAPNG parsing/aggregation, MQTT decoding and TCP reassembly, the HTML report and web UI (including escaping of untrusted strings), the synthetic evaluation, output-path safety, and the protected local web workflow.
 
-```powershell
-python -m unittest discover -v
+```bash
+python3 -m unittest discover -s tests -t . -v            # analyzer
+python3 -m unittest discover -s testbed/tests -t . -v    # testbed (Docker tests skipped)
+NEXUS_DOCKER_TESTS=1 python3 -m unittest testbed.tests.test_integration_docker -v   # real containers
 ```
+
+## License
+
+MIT, see [LICENSE](LICENSE).
