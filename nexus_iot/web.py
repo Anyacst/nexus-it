@@ -289,7 +289,7 @@ def create_server(host: str = "127.0.0.1", port: int = 8765, project_root: Path 
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Content-Security-Policy", csp)
             self.send_header("Cache-Control", "no-store")
-            self.send_header("Referrer-Policy", "no-referrer")
+            self.send_header("Referrer-Policy", "same-origin")
             for name, value in (extra_headers or {}).items():
                 self.send_header(name, value)
             self.send_header("Content-Length", str(len(body)))

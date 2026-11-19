@@ -114,6 +114,8 @@ class WebUiTests(WebUiBase):
         self.assertIn("default-src 'self'", csp)
         self.assertIn("frame-ancestors 'none'", csp)
         self.assertNotIn("unsafe-inline", csp)
+        # Safari sends "Origin: null" on form posts under no-referrer, which the local-request check rejects.
+        self.assertEqual(headers["Referrer-Policy"], "same-origin")
         nonce = re.search(r"'nonce-([^']+)'", csp).group(1)
         self.assertIn(f"<style nonce='{nonce}'>".encode(), page)
         self.assertNotIn(b"<script", page)
